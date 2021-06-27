@@ -2,7 +2,7 @@ import React, { Suspense, useEffect } from "react";
 import * as THREE from "three";
 import { useGLTF } from "@hooks";
 
-const Head: React.FC = (): JSX.Element => {
+const Head: React.FC<{ scene: any }> = ({ scene }) => {
   const model = useGLTF('gltf/head.glb');
   useEffect(() => {
     if (!model) return;
@@ -11,12 +11,14 @@ const Head: React.FC = (): JSX.Element => {
         // console.log(obj.material);
       }
     });
+    scene.add(model);
   }, [model]);
-  return (
+  return null;
+  /* return (
     <Suspense fallback={null}>
       {model && <primitive object={model} />}
     </Suspense>
-  )
+  ) */
 }
 
 export default Head;

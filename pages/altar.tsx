@@ -29,13 +29,14 @@ const CameraController = () => {
     };
   }, [camera, gl]);
   return null;
-};
+}
 
 const Scene: React.FC = (): JSX.Element => {
+  const { scene } = useThree();
   return (
     <>
       <CameraController />
-      <Head />
+      <Head {...{ scene }} />
       <ambientLight intensity={0.1} />
       <directionalLight color="white" position={[0, 5, 5]} />
     </>

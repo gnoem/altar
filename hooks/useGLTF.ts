@@ -9,7 +9,6 @@ const useGLTF = (filePath: string): any => {
       const { GLTFLoader } = require('three/examples/jsm/loaders/GLTFLoader.js');
       const loader = new GLTFLoader();
       loader.load(filePath, (gltf: any) => {
-        console.log(`loaded model at ${filePath}`);
         setScene(gltf.scene);
       });
     }

@@ -20,7 +20,10 @@ const Head: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
     }
     loadObject(model, sceneComponents, animation, setLoaded)
   }, [model]);
-  return null;
+  return (
+    <>
+    </>
+  )
 }
 
 export default Head;

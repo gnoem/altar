@@ -8,7 +8,7 @@ import { loadObject } from "@utils";
 
 const Torus: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
   useEffect(() => {
-    const geometry = new THREE.TorusGeometry();
+    const geometry = new THREE.TorusGeometry(5, 0.5, 64, 64);
     const material = new THREE.ShaderMaterial(gradient('hotpink', 'yellow'));
     const torus = new THREE.Mesh(geometry, material);
     const animation = () => {

@@ -1,4 +1,5 @@
-import React, { useCallback, useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import styles from "./Scene.module.css";
 import { useScene } from "@hooks";
 import { Head, Torus } from "@models";
 import { ILoadedObject, IThreeScene } from "@types";
@@ -15,7 +16,8 @@ const objectMap: { [objectName: string]: React.FC<ILoadedObject> } = {
 }
 
 const Scene: React.FC<{ objects: string[]; }> = ({ objects: objectNames }): JSX.Element => {
-  const [objects, setObjects] = useState<ISceneObject[] | null>(null);
+  const [objects, setObjects] = useState<React.FC<ILoadedObject>[] | null>(null);
+  const [objectsList, setObjectsList] = useState<ISceneObject[] | null>(null);
   const [sceneRef, createSceneRef] = useState<HTMLDivElement | null>(null);
   const sceneComponents: IThreeScene = useScene(sceneRef);
   useEffect(() => {
@@ -23,30 +25,37 @@ const Scene: React.FC<{ objects: string[]; }> = ({ objects: objectNames }): JSX.
       name,
       loaded: false
     }));
-    setObjects(array);
+    setObjectsList(array);
   }, [objectNames]);
   const isReady = useMemo(() => {
-    return (sceneComponents && objects?.every(obj => obj.loaded));
-  }, [sceneComponents, objects]);
-  const loadObjects = useCallback(() => {
-    if (!objects || !sceneComponents) return null;
-    return objects.map(({ name }) => {
-      const setLoaded = (value: boolean): void => {
-        setObjects(mutateStateArray((array) => {
-          const index = array.find(obj => obj.name === name);
-          return array.splice(index, 1, {
-            name,
-            loaded: value
-          });
-        }));
-      }
-      return objectMap[name]({ sceneComponents, setLoaded });
-    });
-  }, [objects, sceneComponents]);
+    return (sceneComponents && objectsList?.every(obj => obj.loaded));
+  }, [sceneComponents, objectsList]);
+  const { scene, camera, renderer } = sceneComponents;
+  useEffect(() => {
+    if (!objectsList || !sceneComponents) return;
+    if (!(scene && camera && renderer)) return;
+    if (objects) return;
+    const loadObjects = (): React.FC<ILoadedObject>[] | null => {
+      return objectsList.map(({ name, loaded }): any => {
+        if (loaded) return null;
+        const setLoaded = (value: boolean): void => {
+          setObjectsList(mutateStateArray((array) => {
+            const index = array.findIndex(obj => obj.name === name);
+            return array.splice(index, 1, {
+              name,
+              loaded: value
+            });
+          }));
+        }
+        return objectMap[name]({ sceneComponents, setLoaded });
+      });
+    }
+    setObjects(loadObjects());
+  }, [objects, objectsList, sceneComponents]);
   return (
     <>
-      <div ref={createSceneRef} className={isReady ? '' : 'loading'}>
-        {loadObjects()}
+      <div ref={createSceneRef} className={`${styles.Scene} ${isReady ? '' : styles.loading}`}>
+        {objects}
       </div>
     </>
   )

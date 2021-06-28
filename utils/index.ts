@@ -1,5 +1,31 @@
+import { IThreeScene } from "@types";
+
+export const mutateStateArray = (update: (array: any[]) => void) => (prevArray: React.SetStateAction<any>) => {
+  const arrayToReturn = [...prevArray];
+  update(arrayToReturn);
+  return arrayToReturn;
+}
+
 export const randomNumberBetween = (min: number, max: number, decimalPlaces: number = 0): number => {
   const randomDecimal = Math.random() * (max - min) + min;
   const roundingFactor = 10 ** decimalPlaces;
   return Math.round(randomDecimal * roundingFactor) / roundingFactor;
+}
+
+export const loadObject = (
+  model: any,
+  sceneComponents: IThreeScene,
+  animation: (model: any) => void = (() => {}),
+  setLoaded: (value: boolean) => void
+) => {
+  const { scene, camera, renderer } = sceneComponents;
+  if (!(scene && camera && renderer)) return;
+  scene.add(model);
+  const animate = () => {
+    requestAnimationFrame( animate );
+    animation(model);
+    renderer.render( scene, camera );
+  }
+  animate();
+  setLoaded(true);
 }

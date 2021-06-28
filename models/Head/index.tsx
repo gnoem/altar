@@ -1,27 +1,24 @@
 import React, { useEffect } from "react";
 import * as THREE from "three";
 import { useGLTF } from "@hooks";
+import { ILoadedObject } from "@types";
+import { loadObject } from "@utils";
 
-const Head: React.FC<{ scene: any; camera: any; renderer: any; }> = ({ scene, camera, renderer }) => {
+const Head: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
   const model = useGLTF('gltf/head.glb');
   useEffect(() => {
     if (!model) return;
     model.traverse((obj: any) => {
-      if ( obj instanceof THREE.Mesh ) {
-        // do something
+      if (obj instanceof THREE.Mesh) {
         obj.castShadow = true;
         obj.receiveShadow = true;
-
       }
     });
     model.castShadow = true;
-    scene.add(model);
-    const animate = () => {
-      requestAnimationFrame( animate );
+    const animation = () => {
       model.rotation.y += -0.01;
-      renderer.render( scene, camera );
     }
-    animate();
+    loadObject(model, sceneComponents, animation, setLoaded)
   }, [model]);
   return null;
 }

@@ -1,11 +1,8 @@
+import { IThreeScene } from "@types";
 import { useEffect, useState } from "react";
 import * as THREE from "three";
 
-export const useScene = (sceneRef: HTMLElement | null): {
-  scene: THREE.Scene | null;
-  camera: THREE.Camera | null;
-  renderer: THREE.WebGLRenderer | null;
-} => {
+const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
   const [scene, setScene] = useState<THREE.Scene | null>(null);
   const [camera, setCamera] = useState<THREE.Camera | null>(null);
   const [renderer, setRenderer] = useState<THREE.WebGLRenderer | null>(null);
@@ -25,7 +22,6 @@ export const useScene = (sceneRef: HTMLElement | null): {
     setScene(myScene);
     setCamera(camera);
     setRenderer(renderer);
-    // @ts-ifgnore: Object is possibly 'null'
     sceneRef.appendChild(renderer.domElement);
   }, [scene, sceneRef]);
   return {
@@ -45,3 +41,5 @@ const addLighting = (scene: THREE.Scene): void => {
   scene.add( directionalLight ); // needed for shadows!!
   scene.add( ambientLight );
 }
+
+export default useScene;

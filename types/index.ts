@@ -7,6 +7,7 @@ export interface IThreeScene {
 }
 
 export interface ILoadedObject {
+  key: string;
   sceneComponents: IThreeScene;
   setLoaded: (value: boolean) => void;
 }

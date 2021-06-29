@@ -15,17 +15,34 @@ export const randomNumberBetween = (min: number, max: number, decimalPlaces: num
 export const loadObject = (
   model: any,
   sceneComponents: IThreeScene,
-  animation: (model: any) => void = (() => {}),
+  animation: ((model: any) => void) | null,
   setLoaded: (value: boolean) => void
 ) => {
   const { scene, camera, renderer } = sceneComponents;
   if (!(scene && camera && renderer)) return;
   scene.add(model);
   const animate = () => {
-    requestAnimationFrame( animate );
-    animation(model);
-    renderer.render( scene, camera );
+    animation?.(model);
+    renderer.render(scene, camera);
+    requestAnimationFrame(animate);
   }
   animate();
   setLoaded(true);
+}
+
+export const animateObject = (
+  model: any,
+  sceneComponents: IThreeScene,
+  animation: ((model: any) => void) | null,
+) => {
+  const { scene, camera, renderer } = sceneComponents;
+  if (!(scene && camera && renderer)) return;
+  let anim;
+  const animate = () => {
+    animation?.(model);
+    renderer.render(scene, camera);
+    anim = requestAnimationFrame(animate);
+  }
+  //if (anim && !animation) cancelAnimationFrame(anim);
+  animate();
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import styles from "./Scene.module.css";
-import { useScene } from "@hooks";
+import { useClick, useScene } from "@hooks";
 import { Head, Torus } from "@models";
 import { ILoadedObject, IThreeScene } from "@types";
 import { mutateStateArray } from "@utils";
@@ -11,8 +11,8 @@ interface ISceneObject {
 }
 
 const objectMap: { [objectName: string]: React.FC<ILoadedObject> } = {
-  'head': (props) => <Head key="head" {...props} />,
-  'torus': (props) => <Torus key="torus" {...props} />
+  'head': (props) => <Head {...props} />,
+  'torus': (props) => <Torus {...props} />
 }
 
 const Scene: React.FC<{ objects: string[]; }> = ({ objects: objectNames }): JSX.Element => {
@@ -20,6 +20,7 @@ const Scene: React.FC<{ objects: string[]; }> = ({ objects: objectNames }): JSX.
   const [objectsList, setObjectsList] = useState<ISceneObject[] | null>(null);
   const [sceneRef, createSceneRef] = useState<HTMLDivElement | null>(null);
   const sceneComponents: IThreeScene = useScene(sceneRef);
+  useClick(sceneComponents);
   useEffect(() => {
     const array = objectNames.map((name: string) => ({
       name,
@@ -47,7 +48,7 @@ const Scene: React.FC<{ objects: string[]; }> = ({ objects: objectNames }): JSX.
             });
           }));
         }
-        return objectMap[name]({ sceneComponents, setLoaded });
+        return objectMap[name]({ key: name, sceneComponents, setLoaded });
       });
     }
     setObjects(loadObjects());

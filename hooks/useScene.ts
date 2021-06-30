@@ -1,15 +1,16 @@
-import { OrbitControls, RGBELoader, RoughnessMipmapper, Sky, Water } from "@lib";
-import { IThreeScene } from "@types";
 import { useEffect, useState } from "react";
 import * as THREE from "three";
+import { OrbitControls, RGBELoader, RoughnessMipmapper, Sky, Water } from "@lib";
+import { IThreeScene } from "@types";
 
 const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
+  const [isSet, setIsSet] = useState<boolean>(false);
   const [scene, setScene] = useState<THREE.Scene | null>(null);
   const [camera, setCamera] = useState<THREE.Camera | null>(null);
   const [renderer, setRenderer] = useState<THREE.WebGLRenderer | null>(null);
   useEffect(() => {
-    if (!sceneRef || scene) return;
-    const myScene = new THREE.Scene();
+    if (!sceneRef || isSet) return;
+    const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
@@ -17,13 +18,13 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
     });
     camera.position.set(0, 0, 10);
     dragToLookAround(camera, renderer);
-    addLighting(myScene);
-    const water = addWater(myScene);
-    addEnvironmentTexture(myScene, camera, renderer);
+    addLighting(scene);
+    const water = addWater(scene);
+    addEnvironmentTexture(scene, camera, renderer);
     renderer.shadowMap.enabled = true;
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.outputEncoding = THREE.sRGBEncoding;
-    setScene(myScene);
+    setScene(scene);
     setCamera(camera);
     setRenderer(renderer);
     sceneRef.appendChild(renderer.domElement);
@@ -31,10 +32,11 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
       requestAnimationFrame( animate );
       // @ts-ignore
       water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
-      renderer.render(myScene, camera);
+      renderer.render(scene, camera);
     }
     animate();
-  }, [scene, sceneRef]);
+    setIsSet(true);
+  }, [isSet, sceneRef]);
   return {
     scene,
     camera,

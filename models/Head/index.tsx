@@ -1,15 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import * as THREE from "three";
-import { useAnimation, useGLTF } from "@hooks";
+import { useGLTF } from "@hooks";
 import { ILoadedObject } from "@types";
 import { loadObject } from "@utils";
-import { useState } from "react";
 
 const Head: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
   const [model, setModel] = useState<any>(null);
   const [clicked, setClicked] = useState<number | null>(null);
   const [state, setState] = useState<string>('underwater');
-  const setAnimation = useAnimation(model, sceneComponents);
   const object = useGLTF('gltf/head.glb');
   useEffect(() => {
     if (!clicked) return;
@@ -37,7 +35,7 @@ const Head: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
         default: return null;
       }
     }
-    setAnimation(getAnimationFor(state));
+    model.userData.tick = getAnimationFor(state);
   }, [state, model]);
   useEffect(() => {
     if (!object || model) return;
@@ -52,6 +50,11 @@ const Head: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
     object.castShadow = true;
     object.name = 'head';
     object.userData = {
+      tick: (delta: number) => {
+        // starting animation
+        /* const radiansPerSecond = THREE.MathUtils.degToRad(30);
+        object.rotation.x += radiansPerSecond * delta; */
+      },
       onClick: () => setClicked(Date.now())
     }
     loadObject(object, sceneComponents, null, setLoaded);

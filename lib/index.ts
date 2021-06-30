@@ -1,3 +1,4 @@
+import Loop from "./Loop";
 import { gradient } from "./materials";
 import { OrbitControls, MapControls } from "./OrbitControls";
 import { RGBELoader } from "./RGBELoader";
@@ -6,6 +7,7 @@ import { Sky } from "./Sky";
 import { Water } from "./Water";
 
 export {
+  Loop,
   gradient,
   OrbitControls,
   MapControls,

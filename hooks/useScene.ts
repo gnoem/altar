@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import * as THREE from "three";
-import { OrbitControls, RGBELoader, RoughnessMipmapper, Sky, Water } from "@lib";
+import { Loop, OrbitControls, RGBELoader, RoughnessMipmapper, Sky, Water } from "@lib";
 import { IThreeScene } from "@types";
 
 const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
   const [isSet, setIsSet] = useState<boolean>(false);
   const [scene, setScene] = useState<THREE.Scene | null>(null);
   const [camera, setCamera] = useState<THREE.Camera | null>(null);
+  const [loop, setLoop] = useState<Loop | null>(null);
   const [renderer, setRenderer] = useState<THREE.WebGLRenderer | null>(null);
   useEffect(() => {
     if (!sceneRef || isSet) return;
@@ -16,6 +17,7 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
       alpha: true,
       antialias: true
     });
+    const loop = new Loop(scene, camera, renderer);
     camera.position.set(0, 0, 10);
     dragToLookAround(camera, renderer);
     addLighting(scene);
@@ -27,12 +29,14 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
     setScene(scene);
     setCamera(camera);
     setRenderer(renderer);
+    setLoop(loop);
     sceneRef.appendChild(renderer.domElement);
     const animate = () => {
       requestAnimationFrame( animate );
       // @ts-ignore
       water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
-      renderer.render(scene, camera);
+      loop.start();
+      //renderer.render(scene, camera);
     }
     animate();
     setIsSet(true);
@@ -40,7 +44,8 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
   return {
     scene,
     camera,
-    renderer
+    renderer,
+    loop
   }
 }
 

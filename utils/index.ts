@@ -18,15 +18,16 @@ export const loadObject = (
   animation: ((model: any) => void) | null,
   setLoaded: (value: boolean) => void
 ) => {
-  const { scene, camera, renderer } = sceneComponents;
-  if (!(scene && camera && renderer)) return;
+  const { scene, camera, renderer, loop } = sceneComponents;
+  if (!(scene && camera && renderer && loop)) return;
   scene.add(model);
-  const animate = () => {
+  /* const animate = () => {
     animation?.(model);
     renderer.render(scene, camera);
     requestAnimationFrame(animate);
   }
-  animate();
+  animate(); */
+  loop.add(model);
   setLoaded(true);
 }
 

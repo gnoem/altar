@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import * as THREE from "three";
-import { gradient } from "@three/materials";
+import { gradient } from "@lib";
 import { ILoadedObject } from "@types";
 import { loadObject } from "@utils";
 import { useState } from "react";

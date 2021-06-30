@@ -24,14 +24,14 @@
       "@layouts": ["layouts"],
       "@layouts/*": ["layouts/*"],
       
+      "@lib": ["lib"],
+      "@lib/*": ["lib/*"],
+      
       "@models": ["models"],
       "@models/*": ["models/*"],
       
       "@styles": ["styles"],
       "@styles/*": ["styles/*"],
-      
-      "@three": ["three"],
-      "@three/*": ["three/*"],
       
       "@types": ["types"],
       "@types/*": ["types/*"],

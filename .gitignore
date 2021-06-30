@@ -33,4 +33,5 @@ yarn-error.log*
 # vercel
 .vercel
 
-gltf
+public/gltf
+public/textures

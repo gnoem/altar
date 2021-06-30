@@ -2,11 +2,9 @@ import { IThreeScene } from "@types";
 import { useEffect } from "react";
 import * as THREE from "three";
 
-const useWatchCursor = (model: any, sceneComponents: IThreeScene): void => {
+const useWatchCursor = (model: any, { scene, camera, renderer }: IThreeScene): void => {
   useEffect(() => {
-    if (!model) return;
-    const { scene, camera, renderer } = sceneComponents;
-    if (!(scene && camera && renderer)) return;
+    if (!(scene && camera && renderer && model)) return;
     const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1));
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
@@ -21,7 +19,7 @@ const useWatchCursor = (model: any, sceneComponents: IThreeScene): void => {
     }
     window.addEventListener('mousemove', handleMouseMove, false);
     return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [model]);
+  }, [camera, model]);
 }
 
 export default useWatchCursor;

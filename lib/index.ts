@@ -1,3 +1,4 @@
+import * as animations from "./animations";
 import Loop from "./Loop";
 import { gradient } from "./materials";
 import { OrbitControls, MapControls } from "./OrbitControls";
@@ -7,6 +8,7 @@ import { Sky } from "./Sky";
 import { Water } from "./Water";
 
 export {
+  animations,
   Loop,
   gradient,
   OrbitControls,

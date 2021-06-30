@@ -4,13 +4,12 @@ import { IThreeScene } from "@types";
 
 const useAnimation = (
   model: any,
-  initialState: string,
-  statesMap: { [key: string]: string },
-  animations: (mixer: THREE.AnimationMixer) => { [key: string]: () => void }
+  statesMap: { [key: string]: string | null },
+  playAnimation: (mixer: THREE.AnimationMixer) => { [key: string]: () => void }
 ) => {
   const [mixer, setMixer] = useState<any>(null);
   const [clicked, setClicked] = useState<number | null>(null);
-  const [state, setState] = useState<string>(initialState);
+  const [state, setState] = useState<string | null>(Object.keys(statesMap)[0]);
   useEffect(() => {
     if (!clicked && !model) {
       return;
@@ -19,15 +18,15 @@ const useAnimation = (
       setMixer(animationMixer);
       return;
     }
-    const getAnimationFrom: { [key: string]: string } = {
+    const getAnimationFrom: { [key: string]: string | null } = {
       ...statesMap
     }
-    setState(prevState => getAnimationFrom[prevState] ?? 'abovewater');
+    setState(prevState => prevState ? getAnimationFrom[prevState] : null);
     setClicked(null);
   }, [clicked]);
   useEffect(() => {
-    if (!mixer) return;
-    animations(mixer)[state]();
+    if (!mixer || !state) return;
+    playAnimation(mixer)[state]();
     if (model) {
       model.userData.tick = (delta: number) => mixer.update(delta);
     }

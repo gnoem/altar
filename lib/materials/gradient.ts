@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-export const gradient = (primary?: string, secondary?: string): any => {
+const gradient = (primary?: string, secondary?: string): any => {
   return {
     uniforms: {
       color1: {
@@ -28,3 +28,5 @@ export const gradient = (primary?: string, secondary?: string): any => {
     `
   }
 }
+
+export default gradient;

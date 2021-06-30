@@ -3,9 +3,9 @@ import * as THREE from "three";
 import { useAnimation, useGLTF } from "@hooks";
 import { animations } from "@lib";
 import { ILoadedObject } from "@types";
-import { loadObject } from "@utils";
+import { castModel, loadObject } from "@utils";
 
-const { animationMap, playAnimation } = animations.riseFromWater;
+const { animationMap, startFrom, rawKeyframeData, playAnimation } = animations.riseFromWater;
 
 const Head: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
   const [model, setModel] = useState<any>(null);
@@ -19,15 +19,11 @@ const Head: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
         obj.receiveShadow = true;
       }
     });
-    object.rotation.y = Math.PI;
-    object.position.y = -6;
+    castModel.position(object, rawKeyframeData[startFrom].position);
+    castModel.rotation(object, rawKeyframeData[startFrom].rotation);
     object.castShadow = true;
     object.name = 'head';
     object.userData = {
-      tick: (delta: number) => {
-        /* const radiansPerSecond = THREE.MathUtils.degToRad(30);
-        object.rotation.x += radiansPerSecond * delta; */
-      },
       onClick: toggleAnimation
     }
     loadObject(object, sceneComponents, null, setLoaded);

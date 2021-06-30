@@ -32,6 +32,7 @@ const useAnimation = (
     }
   }, [state, mixer]);
   return {
+    animationState: state,
     toggleAnimation: () => setClicked(Date.now())
   }
 }

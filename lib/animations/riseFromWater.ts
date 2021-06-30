@@ -7,16 +7,34 @@ const animationMap: {
   'riseup': 'sinkdown'
 }
 
+const startFrom = Object.keys(animationMap)[0];
+
+interface IKeyframe {
+  [key: string]: number[]
+}
+
+const rawKeyframeData: { [key: string]: IKeyframe } = {
+  sinkdown: {
+    rotation: [0, Math.PI, 0],
+    position: [0, -6, 0]
+  },
+  riseup: {
+    rotation: [0, 0, 0],
+    position: [0, 0, 0]
+  }
+}
+
 const getKeyframeTracks = () => {
   const times = [0, 3];
-  const axis = new THREE.Vector3( 0, 1, 0 );
-  const underwater = {
-    rotation: new THREE.Quaternion().setFromAxisAngle( axis, Math.PI ),
-    position: [0, -6, 0]
+  const getQuaternion = (array: number[]) => {
+    const euler = new THREE.Euler(...array);
+    return new THREE.Quaternion().setFromEuler(euler);
   }
-  const abovewater = {
-    rotation: new THREE.Quaternion().setFromAxisAngle( axis, 0 ),
-    position: [0, 0, 0]
+  const getKeyframe = (name: string) => {
+    return {
+      rotation: getQuaternion(rawKeyframeData[name].rotation),
+      position: rawKeyframeData[name].position
+    }
   }
   const trackData = (initial: any, final: any) => {
     const rotationKF = new THREE.QuaternionKeyframeTrack(
@@ -41,8 +59,8 @@ const getKeyframeTracks = () => {
     ]
   }
   return {
-    'riseup': trackData(underwater, abovewater),
-    'sinkdown': trackData(abovewater, underwater)
+    'riseup': trackData(getKeyframe('sinkdown'), getKeyframe('riseup')),
+    'sinkdown': trackData(getKeyframe('riseup'), getKeyframe('sinkdown'))
   }
 }
 
@@ -71,6 +89,8 @@ const playAnimation = (mixer: THREE.AnimationMixer): {
 
 const riseFromWater = {
   animationMap,
+  startFrom,
+  rawKeyframeData,
   playAnimation
 }
 

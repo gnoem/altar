@@ -1,3 +1,4 @@
+import * as THREE from "three";
 import { IThreeScene } from "@types";
 
 export const mutateStateArray = (update: (array: any[]) => void) => (prevArray: React.SetStateAction<any>) => {
@@ -10,6 +11,27 @@ export const randomNumberBetween = (min: number, max: number, decimalPlaces: num
   const randomDecimal = Math.random() * (max - min) + min;
   const roundingFactor = 10 ** decimalPlaces;
   return Math.round(randomDecimal * roundingFactor) / roundingFactor;
+}
+
+export const setModelPosition = (model: any, [x, y, z]: number[]): void => {
+  Object.assign(model.position, { x, y, z });
+}
+
+export const setModelRotation = (model: THREE.Mesh, [x, y, z]: number[]) => {
+  const euler = new THREE.Euler(...[x, y, z]);
+  model.setRotationFromEuler(euler);
+}
+
+export const castModel: {
+  [property: string]: (model: any, [x, y, z]: number[]) => void
+} = {
+  position: (model: any, [x, y, z]: number[]): void => {
+    Object.assign(model.position, { x, y, z });
+  },
+  rotation: (model: any, [x, y, z]: number[]) => {
+    const euler = new THREE.Euler(...[x, y, z]);
+    model.setRotationFromEuler(euler);
+  }
 }
 
 export const loadObject = (
@@ -29,21 +51,4 @@ export const loadObject = (
   animate(); */
   loop.add(model);
   setLoaded(true);
-}
-
-export const animateObject = (
-  model: any,
-  sceneComponents: IThreeScene,
-  animation: ((model: any) => void) | null,
-) => {
-  const { scene, camera, renderer } = sceneComponents;
-  if (!(scene && camera && renderer)) return;
-  let anim;
-  const animate = () => {
-    animation?.(model);
-    renderer.render(scene, camera);
-    anim = requestAnimationFrame(animate);
-  }
-  //if (anim && !animation) cancelAnimationFrame(anim);
-  animate();
 }

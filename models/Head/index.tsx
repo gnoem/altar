@@ -5,12 +5,15 @@ import { animations } from "@lib";
 import { ILoadedObject } from "@types";
 import { castModel, loadObject } from "@utils";
 
-const { animationMap, startFrom, rawKeyframeData, playAnimation } = animations.riseFromWater;
-
 const Head: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
   const [model, setModel] = useState<any>(null);
   const object = useGLTF('gltf/head.glb');
-  const { toggleAnimation } = useAnimation(model, animationMap, playAnimation);
+
+  const animationName = 'riseFromWater';
+  const animation = animations[animationName];
+  const { startFrom, rawKeyframeData } = animation;
+  const { toggleAnimation } = useAnimation(model, animation);
+
   useEffect(() => {
     if (!object || model) return;
     object.traverse((obj: any) => {
@@ -19,16 +22,19 @@ const Head: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
         obj.receiveShadow = true;
       }
     });
-    castModel.position(object, rawKeyframeData[startFrom].position);
-    castModel.rotation(object, rawKeyframeData[startFrom].rotation);
+    const initial = rawKeyframeData[startFrom];
+    castModel.position(object, initial.position);
+    castModel.rotation(object, initial.rotation);
     object.castShadow = true;
     object.name = 'head';
-    object.userData = {
-      onClick: toggleAnimation
+    object.userData.hoverCursor = 'pointer';
+    object.userData.events = {
+      click: toggleAnimation
     }
     loadObject(object, sceneComponents, null, setLoaded);
     setModel(object);
   }, [object, model]);
+
   return null;
 }
 

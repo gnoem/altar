@@ -7,24 +7,30 @@ import { useAnimation } from "@hooks";
 
 // animation w/ react-spring: https://codesandbox.io/embed/react-three-fiber-gestures-08d22?codemirror=1
 
-const { animationMap, startFrom, rawKeyframeData, playAnimation } = animations.riseFromWater;
-
 const Torus: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
   const [model, setModel] = useState<any>(null);
-  const { toggleAnimation } = useAnimation(model, animationMap, playAnimation);
+  
+  const animationName = 'riseFromWater';
+  const animation = animations[animationName];
+  const { startFrom, rawKeyframeData } = animation;
+  const { toggleAnimation } = useAnimation(model, animation);
+  
   useEffect(() => {
     if (model) return;
     const geometry = new THREE.TorusGeometry(1, 0.5, 64, 64);
     const material = new THREE.ShaderMaterial(materials.gradient('hotpink', 'yellow'));
     const torus = new THREE.Mesh(geometry, material);
-    castModel.position(torus, rawKeyframeData[startFrom].position);
-    castModel.rotation(torus, rawKeyframeData[startFrom].rotation);
-    torus.userData = {
-      onClick: toggleAnimation
+    const initial = rawKeyframeData[startFrom];
+    castModel.position(torus, initial.position);
+    castModel.rotation(torus, initial.rotation);
+    torus.userData.hoverCursor = 'pointer';
+    torus.userData.events = {
+      click: toggleAnimation
     }
     loadObject(torus, sceneComponents, null, setLoaded);
     setModel(torus);
   }, []);
+
   return null;
 }
 

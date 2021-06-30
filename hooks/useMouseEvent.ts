@@ -2,7 +2,7 @@ import { IThreeScene } from "@types";
 import { useEffect } from "react";
 import * as THREE from "three";
 
-const useClick = (sceneComponents: IThreeScene, /* callback: (obj: any) => void, */ deps: string[] = []): void => {
+const useMouseEvent = (sceneComponents: IThreeScene, deps: string[] = []): void => {
   const { scene, camera, renderer } = sceneComponents;
   useEffect(() => {
     if (!(scene && camera && renderer)) return;
@@ -33,15 +33,24 @@ const useClick = (sceneComponents: IThreeScene, /* callback: (obj: any) => void,
       }
       const objects = getSceneObjects(scene.children);
       const intersects = raycaster.intersectObjects(objects);
+      const { canvas } = scene.userData;
       if (intersects.length > 0) {
-        intersects[0].object.userData.onClick?.();
+        const { object } = intersects[0];
+        object.userData.events?.[e.type]?.();
+        if ((e.type === 'mousemove') && (object.userData.hoverCursor)) {
+          canvas.style.cursor = object.userData.hoverCursor;
+        } else {
+          canvas.style.cursor = '';
+        }
       }
     }
     window.addEventListener('click', handleEvent);
+    window.addEventListener('mousemove', handleEvent);
     return () => {
       window.removeEventListener('click', handleEvent);
+      window.removeEventListener('mousemove', handleEvent);
     }
   }, [scene, camera, renderer, ...deps]);
 }
 
-export default useClick;
+export default useMouseEvent;

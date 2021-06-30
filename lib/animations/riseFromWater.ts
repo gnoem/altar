@@ -1,3 +1,4 @@
+import { IAnimation, IKeyframe } from "@types";
 import * as THREE from "three";
 
 const animationMap: {
@@ -8,10 +9,6 @@ const animationMap: {
 }
 
 const startFrom = Object.keys(animationMap)[0];
-
-interface IKeyframe {
-  [key: string]: number[]
-}
 
 const rawKeyframeData: { [key: string]: IKeyframe } = {
   sinkdown: {
@@ -87,7 +84,7 @@ const playAnimation = (mixer: THREE.AnimationMixer): {
   }
 }
 
-const riseFromWater = {
+const riseFromWater: IAnimation = {
   animationMap,
   startFrom,
   rawKeyframeData,

@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
 import * as THREE from "three";
-import { IThreeScene } from "@types";
+import { IAnimation, IThreeScene } from "@types";
 
 const useAnimation = (
   model: any,
-  statesMap: { [key: string]: string | null },
-  playAnimation: (mixer: THREE.AnimationMixer) => { [key: string]: () => void }
+  { animationMap, startFrom, playAnimation }: IAnimation
 ) => {
-  const [mixer, setMixer] = useState<any>(null);
+  const [mixer, setMixer] = useState<THREE.AnimationMixer | null>(null);
   const [clicked, setClicked] = useState<number | null>(null);
-  const [state, setState] = useState<string | null>(Object.keys(statesMap)[0]);
+  const [state, setState] = useState<string | null>(startFrom);
+  const [map] = useState<{ [key: string]: string | null }>(animationMap);
+  // eventually expose setMap to model component
+
   useEffect(() => {
     if (!clicked && !model) {
       return;
@@ -18,12 +20,10 @@ const useAnimation = (
       setMixer(animationMixer);
       return;
     }
-    const getAnimationFrom: { [key: string]: string | null } = {
-      ...statesMap
-    }
-    setState(prevState => prevState ? getAnimationFrom[prevState] : null);
+    setState(prevState => prevState ? map[prevState] : null);
     setClicked(null);
   }, [clicked]);
+
   useEffect(() => {
     if (!mixer || !state) return;
     playAnimation(mixer)[state]();
@@ -31,8 +31,8 @@ const useAnimation = (
       model.userData.tick = (delta: number) => mixer.update(delta);
     }
   }, [state, mixer]);
+
   return {
-    animationState: state,
     toggleAnimation: () => setClicked(Date.now())
   }
 }

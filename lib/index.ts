@@ -1,6 +1,4 @@
-import * as animations from "./animations";
-import * as materials from "./materials";
-import * as objects from "./objects";
+
 import { Loop } from "./system";
 import {
   MapControls,
@@ -9,10 +7,11 @@ import {
   RoughnessMipmapper
 } from "./three";
 
+export * as animations from "./animations";
+export * as materials from "./materials";
+export * as objects from "./objects";
+
 export {
-  animations,
-  materials,
-  objects,
   Loop,
   MapControls,
   OrbitControls,

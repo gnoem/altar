@@ -13,3 +13,14 @@ export interface ILoadedObject {
   sceneComponents: IThreeScene;
   setLoaded: (value: boolean) => void;
 }
+
+export interface IKeyframe {
+  [key: string]: number[]
+}
+
+export interface IAnimation {
+  animationMap: { [start: string]: string | null };
+  startFrom: string;
+  rawKeyframeData: { [key: string]: IKeyframe }
+  playAnimation: (mixer: THREE.AnimationMixer) => { [key: string]: () => void }
+}

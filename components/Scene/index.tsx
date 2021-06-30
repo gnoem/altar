@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import styles from "./Scene.module.css";
-import { useClick, useScene } from "@hooks";
+import { useMouseEvent, useScene } from "@hooks";
 import { Head, Torus } from "@models";
 import { ILoadedObject, IThreeScene } from "@types";
 import { mutateStateArray } from "@utils";
@@ -20,7 +20,7 @@ const Scene: React.FC<{ objects: string[]; }> = ({ objects: objectNames }): JSX.
   const [objectsList, setObjectsList] = useState<ISceneObject[] | null>(null);
   const [sceneRef, createSceneRef] = useState<HTMLDivElement | null>(null);
   const sceneComponents: IThreeScene = useScene(sceneRef);
-  useClick(sceneComponents);
+  useMouseEvent(sceneComponents);
   useEffect(() => {
     const array = objectNames.map((name: string) => ({
       name,

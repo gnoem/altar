@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import * as THREE from "three";
-import { Loop, OrbitControls, RGBELoader, RoughnessMipmapper, Sky, Water } from "@lib";
+import { Loop, OrbitControls, RGBELoader, RoughnessMipmapper, objects } from "@lib";
 import { IThreeScene } from "@types";
+
+const { Water, Sky } = objects;
 
 const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
   const [isSet, setIsSet] = useState<boolean>(false);
@@ -23,6 +25,9 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
     addLighting(scene);
     const water = addWater(scene);
     addEnvironmentTexture(scene, camera, renderer);
+    scene.userData = {
+      canvas: sceneRef
+    }
     renderer.shadowMap.enabled = true;
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.outputEncoding = THREE.sRGBEncoding;

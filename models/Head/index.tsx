@@ -22,7 +22,7 @@ const Head: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
         obj.receiveShadow = true;
       }
     });
-    const initial = animations.rawKeyframeData()[startFrom];
+    const initial = animations.animationKeyframes()[startFrom];
     castModel.position(object, initial.position);
     castModel.rotation(object, initial.rotation);
     object.castShadow = true;

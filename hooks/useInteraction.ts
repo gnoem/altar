@@ -7,6 +7,7 @@ interface IInteract {
   state?: IInteractionDef | string;
   next?: () => void;
   interact?: () => void;
+  castState?: (state: IInteractionDef) => void;
 }
 
 const useInteraction = (
@@ -14,53 +15,54 @@ const useInteraction = (
   sceneComponents: IThreeScene,
   { blueprint, startFrom, animations, dialogue }: IInteraction
 ): IInteract => {
-  const [interacted, setInteracted] = useState<number | null>(null);
-  const [state, setState] = useState<IInteractionDef | string>(startFrom);
   // todo add "history" - array of strings representing past states in order
+  const [interacted, setInteracted] = useState<number | IInteractionDef | null>(null);
+  const [state, setState] = useState<IInteractionDef | string>(startFrom);
   const { createMixer } = useAnimation(model, state, animations, startFrom);
-  //const [map] = useState<{ [key: string]: IInteractionDef }>(blueprint); // eventually expose setMap to model component?
 
-  const interact = () => setInteracted(Date.now());
+  const interact = (customState?: IInteractionDef) => {
+    setInteracted(customState ?? Date.now());
+  }
 
-  useDialogue(dialogue, {
-    state,
-    next: interact
-  }, sceneComponents)
+  const castState = ({ steps, times }: IInteractionDef) => {
+    // todo something if steps.length !== times.length or if keyframes don't exist for any of the steps
+    // also sort times array  here and also in the other function where I have to worry about this
+    setInteracted({ steps, times });
+  }
 
   useEffect(() => {
     if (!model) return;
     if (!interacted) return createMixer();
-    setState(prevState => {
-      const valueToReturn = (typeof prevState === 'string')
-        ? blueprint[prevState] // only true if starting
-        : blueprint[last(prevState.steps)];
-      return valueToReturn ?? prevState;
-    });
+    // can either follow blueprint via interact()...
+    if (typeof interacted === 'number') {
+      setState(prevState => {
+        const valueToReturn = (typeof prevState === 'string')
+          ? blueprint[prevState] // only true if starting
+          : blueprint[last(prevState.steps)];
+        return valueToReturn ?? prevState;
+      });
+    // ...or cast state directly, e.g. from dialog
+    } else if (interacted.steps && interacted.times) {
+      setState(interacted);
+    }
     setInteracted(null);
   }, [interacted]);
+
+  useDialogue(dialogue, {
+    state,
+    next: () => interact(),
+    castState
+  }, sceneComponents);
 
   return {
     interact
   }
 }
 
-const useDialogue = (
-  dialogue: IDialogue,
-  { state, next }: IInteract,
-  { scene, camera, renderer }: IThreeScene
-) => {
-  useEffect(() => {
-    if (!(scene && camera && renderer)) return;
-    if (typeof state === 'string') return;
-    const currentState = last(state!.steps);
-    dialogue(scene, next!)[currentState]?.();
-  }, [state]);
-}
-
 const useAnimation = (
   model: any,
   state: IInteractionDef | string,
-  { rawKeyframeData, playAnimation }: IAnimationData,
+  { animationKeyframes, playAnimation }: IAnimationData,
   startFrom: string
 ): { createMixer: () => void } => {
   const [mixer, setMixer] = useState<THREE.AnimationMixer | null>(null);
@@ -68,7 +70,7 @@ const useAnimation = (
 
   useEffect(() => {
     if (!mixer || typeof state === 'string') return;
-    if (state.steps.some(step => !rawKeyframeData()[step])) return; // if any steps don't have corresponding keyframe definitions
+    if (state.steps.some(step => !animationKeyframes()[step])) return; // if any steps don't have corresponding keyframe definitions
     if (prevAnimation === last(state.steps)) return;
     playAnimation(mixer, [prevAnimation, ...state.steps], [0, ...state.times]);
     setPrevAnimation(last(state.steps));
@@ -85,6 +87,19 @@ const useAnimation = (
   return {
     createMixer
   }
+}
+
+const useDialogue = (
+  dialogue: IDialogue,
+  { state, next, castState }: IInteract,
+  { scene, camera, renderer }: IThreeScene
+) => {
+  useEffect(() => {
+    if (!(scene && camera && renderer)) return;
+    if (typeof state === 'string') return;
+    const currentState = last(state!.steps);
+    dialogue(scene, next!, castState!)[currentState]?.();
+  }, [state]);
 }
 
 export default useInteraction;

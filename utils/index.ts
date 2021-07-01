@@ -35,6 +35,9 @@ export const castModel: {
   rotation: (model: any, [x, y, z]: number[]) => {
     const euler = new THREE.Euler(...[x, y, z]);
     model.setRotationFromEuler(euler);
+  },
+  scale: (model: any, [x, y, z]: number[]): void => {
+    Object.assign(model.scale, { x, y, z });
   }
 }
 

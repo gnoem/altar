@@ -20,9 +20,10 @@ const Torus: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
     const geometry = new THREE.TorusGeometry(1, 0.5, 64, 64);
     const material = new THREE.ShaderMaterial(materials.gradient('hotpink', 'yellow'));
     const torus = new THREE.Mesh(geometry, material);
-    const initial = animations.rawKeyframeData()[startFrom];
+    const initial = animations.animationKeyframes()[startFrom];
     castModel.position(torus, initial.position);
     castModel.rotation(torus, initial.rotation);
+    castModel.scale(torus, initial.scale);
     torus.userData.hoverCursor = 'pointer';
     torus.userData.events = {
       click: interact

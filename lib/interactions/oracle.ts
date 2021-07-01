@@ -1,4 +1,4 @@
-import { IInteractionDef, IRawKeyframeMap } from "@types";
+import { IInteractionDef, IKeyframeMap } from "@types";
 import * as THREE from "three";
 import * as utils from "./_utils";
 
@@ -29,7 +29,10 @@ const blueprint: {
 
 const startFrom = Object.keys(blueprint)[0];
 
-const dialogue = (scene: THREE.Scene, next: () => void): {
+const dialogue = (
+  scene: THREE.Scene,
+  next: () => void
+): {
   [state: string]: () => void
 } => {
   const welcome = () => {
@@ -63,22 +66,26 @@ const dialogue = (scene: THREE.Scene, next: () => void): {
   }
 }
 
-const rawKeyframeData = (): IRawKeyframeMap => {
+const animationKeyframes = (): IKeyframeMap => {
   const underwater = {
     rotation: [0, Math.PI, 0],
-    position: [0, -6, 0]
+    position: [0, -6, 0],
+    scale: [1, 1, 1]
   }
   const abovewater = {
     rotation: [0, 0, 0],
-    position: [0, 0, 0]
+    position: [0, 0, 0],
+    scale: [1, 1, 1]
   }
   const welcomed = {
     rotation: [0, Math.PI, 0],
-    position: [0, -5, 0]
+    position: [0, -5, 0],
+    scale: [0.2, 0.2, 0.2]
   }
   const help = {
     rotation: [-Math.PI / 4, 0, 0],
-    position: [0, -3, 0]
+    position: [0, -4, 0],
+    scale: [0.5, 0.5, 0.5]
   }
   return {
     underwater,
@@ -88,10 +95,7 @@ const rawKeyframeData = (): IRawKeyframeMap => {
   }
 }
 
-const animations = {
-  rawKeyframeData,
-  playAnimation: utils.animate(rawKeyframeData)
-}
+const animations = utils.getAnimationData(animationKeyframes);
 
 export {
   blueprint,

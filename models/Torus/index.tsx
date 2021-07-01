@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import * as THREE from "three";
 import { materials, interactions } from "@lib";
 import { ILoadedObject } from "@types";
-import { castModel, loadObject } from "@utils";
+import { castModel, last, loadObject } from "@utils";
 import { useInteraction } from "@hooks";
 
 // animation w/ react-spring: https://codesandbox.io/embed/react-three-fiber-gestures-08d22?codemirror=1
@@ -18,13 +18,14 @@ const Torus: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
   useEffect(() => {
     const { scene, camera, renderer } = sceneComponents;
     if (!(scene && camera && renderer)) return;
-    if (state === 'welcome') {
+    if (typeof state === 'string') return;
+    if (last(state.steps) === 'welcome') {
       const name = prompt(`
         hi, welcome to the altar\n
         its nice to have a visitors!\n
         please enter your name
       `);
-      if (!name) {
+      if (!name || ['no', 'nope', 'no thanks', 'no thank you'].includes(name)) {
         alert(`
           thats ok, i understand not wanting to share. stranger danger and all.
         `)
@@ -36,11 +37,11 @@ const Torus: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
       alert(`
         im the oracle here, i can help you if you have questions or are not sure how this works.\n
         to start, after you close out of this box, why not try clicking and dragging your cursor to look around?\n
-        i'll be in the water if you need me.\n
+        i'll be here in the water if you need me.\n
       `);
       next();
     }
-    if (state === 'welcomed') {
+    if (last(state.steps) === 'welcomed') {
       scene.userData.unlock('lookaround');
     }
   }, [state]);

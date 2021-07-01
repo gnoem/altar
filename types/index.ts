@@ -27,11 +27,20 @@ export interface IAnimation {
 
 export interface IAnimationData {
   rawKeyframeData: () => { [key: string]: IKeyframe }
-  playAnimation: (mixer: THREE.AnimationMixer) => { [key: string]: () => void }
+  playAnimation: (mixer: THREE.AnimationMixer, states: string[], times: number[]) => void
+}
+
+export interface IInteractionDef {
+  steps: string[];
+  times: number[];
+}
+
+export interface IAnimationMap {
+  [start: string]: IInteractionDef
 }
 
 export interface IInteraction {
-  interactionMap: { [start: string]: string | null };
+  interactionMap: IAnimationMap;
   startFrom: string;
   animations: IAnimationData
 }

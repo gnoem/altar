@@ -7,6 +7,10 @@ export const mutateStateArray = (update: ((array: any[]) => void) | null) => (pr
   return arrayToReturn;
 }
 
+export const last = (array: any[]) => {
+  return array[array.length - 1];
+}
+
 export const randomNumberBetween = (min: number, max: number, decimalPlaces: number = 0): number => {
   const randomDecimal = Math.random() * (max - min) + min;
   const roundingFactor = 10 ** decimalPlaces;

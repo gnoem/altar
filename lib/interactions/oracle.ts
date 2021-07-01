@@ -1,7 +1,8 @@
-import { IInteractionDef, IKeyframe } from "@types";
+import { IInteractionDef, IRawKeyframeMap } from "@types";
 import * as THREE from "three";
+import * as utils from "./_utils";
 
-const interactionMap: {
+const blueprint: {
   [start: string]: IInteractionDef
 } = {
   'underwater': {
@@ -25,6 +26,8 @@ const interactionMap: {
     times: [2]
   }
 }
+
+const startFrom = Object.keys(blueprint)[0];
 
 const dialogue = (scene: THREE.Scene, next: () => void): {
   [state: string]: () => void
@@ -60,9 +63,7 @@ const dialogue = (scene: THREE.Scene, next: () => void): {
   }
 }
 
-const startFrom = Object.keys(interactionMap)[0];
-
-const rawKeyframeData = (): { [key: string]: IKeyframe } => {
+const rawKeyframeData = (): IRawKeyframeMap => {
   const underwater = {
     rotation: [0, Math.PI, 0],
     position: [0, -6, 0]
@@ -87,61 +88,13 @@ const rawKeyframeData = (): { [key: string]: IKeyframe } => {
   }
 }
 
-const getKeyframeTracks = (states: string[], times: number[]) => {
-  // todo- if states.length and times.length differ, still do it with necessary adjustments but console.warn
-  const getQuaternion = (array: number[]) => {
-    const euler = new THREE.Euler(...array);
-    return new THREE.Quaternion().setFromEuler(euler);
-  }
-  const getKeyframe = (name: string) => {
-    return {
-      rotation: getQuaternion(rawKeyframeData()[name].rotation),
-      position: rawKeyframeData()[name].position
-    }
-  }
-  const generateTracks = (keyframes: any[]) => {
-    const rotationKF = new THREE.QuaternionKeyframeTrack(
-      '.quaternion',
-      times,
-      keyframes.map(keyframe => {
-        return [keyframe.rotation.x, keyframe.rotation.y, keyframe.rotation.z, keyframe.rotation.w]
-      }).flat()
-    );
-    const positionKF = new THREE.VectorKeyframeTrack(
-      '.position',
-      times,
-      keyframes.map(keyframe => {
-        return [...keyframe.position]
-      }).flat()
-    );
-    return [
-      rotationKF,
-      positionKF
-    ]
-  }
-  const keyframes = states.map(state => getKeyframe(state));
-  return generateTracks(keyframes);
-}
-
-const playAnimation = (mixer: THREE.AnimationMixer, states: string[], times: number[]): void => {
-  const [origin, target] = states;
-  const play = (clip: THREE.AnimationClip) => {
-    const action = mixer.clipAction(clip);
-    action.setLoop(THREE.LoopOnce, 0);
-    action.clampWhenFinished = true;
-    action.play();
-  }
-  const clip = new THREE.AnimationClip(`${origin}-to-${target}`, -1, getKeyframeTracks(states, times));
-  play(clip);
-}
-
 const animations = {
   rawKeyframeData,
-  playAnimation
+  playAnimation: utils.animate(rawKeyframeData)
 }
 
 export {
-  interactionMap,
+  blueprint,
   startFrom,
   animations,
   dialogue

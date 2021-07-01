@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import * as THREE from "three";
 import { materials, interactions } from "@lib";
 import { ILoadedObject } from "@types";
-import { castModel, last, loadObject } from "@utils";
+import { castModel, loadObject } from "@utils";
 import { useInteraction } from "@hooks";
 
 // animation w/ react-spring: https://codesandbox.io/embed/react-three-fiber-gestures-08d22?codemirror=1

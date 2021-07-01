@@ -12,13 +12,13 @@ interface IInteract {
 const useInteraction = (
   model: any,
   sceneComponents: IThreeScene,
-  { interactionMap, startFrom, animations, dialogue }: IInteraction
+  { blueprint, startFrom, animations, dialogue }: IInteraction
 ): IInteract => {
   const [interacted, setInteracted] = useState<number | null>(null);
   const [state, setState] = useState<IInteractionDef | string>(startFrom);
   // todo add "history" - array of strings representing past states in order
   const { createMixer } = useAnimation(model, state, animations, startFrom);
-  const [map] = useState<{ [key: string]: IInteractionDef }>(interactionMap); // eventually expose setMap to model component?
+  //const [map] = useState<{ [key: string]: IInteractionDef }>(blueprint); // eventually expose setMap to model component?
 
   const interact = () => setInteracted(Date.now());
 
@@ -31,11 +31,10 @@ const useInteraction = (
     if (!model) return;
     if (!interacted) return createMixer();
     setState(prevState => {
-      return (prevState)
-        ? (typeof prevState === 'string')
-          ? map[prevState]
-          : map[last(prevState.steps)] ?? prevState
-        : prevState;
+      const valueToReturn = (typeof prevState === 'string')
+        ? blueprint[prevState] // only true if starting
+        : blueprint[last(prevState.steps)];
+      return valueToReturn ?? prevState;
     });
     setInteracted(null);
   }, [interacted]);
@@ -63,7 +62,7 @@ const useAnimation = (
   state: IInteractionDef | string,
   { rawKeyframeData, playAnimation }: IAnimationData,
   startFrom: string
-) => {
+): { createMixer: () => void } => {
   const [mixer, setMixer] = useState<THREE.AnimationMixer | null>(null);
   const [prevAnimation, setPrevAnimation] = useState<string>(startFrom);
 

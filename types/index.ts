@@ -21,12 +21,12 @@ export interface IKeyframe {
 export interface IAnimation {
   animationMap: { [start: string]: string | null };
   startFrom: string;
-  rawKeyframeData: { [key: string]: IKeyframe }
+  rawKeyframeData: () => IRawKeyframeMap;
   playAnimation: (mixer: THREE.AnimationMixer) => { [key: string]: () => void }
 }
 
 export interface IAnimationData {
-  rawKeyframeData: () => { [key: string]: IKeyframe }
+  rawKeyframeData: () => IRawKeyframeMap;
   playAnimation: (mixer: THREE.AnimationMixer, states: string[], times: number[]) => void
 }
 
@@ -43,8 +43,18 @@ export type IDialogue = (scene: THREE.Scene, next: () => void) => {
   [state: string]: () => void
 }
 
+export interface IRawKeyframe {
+  position: number[];
+  rotation: number[];
+  scale?: number[];
+}
+
+export interface IRawKeyframeMap {
+  [name: string]: IRawKeyframe
+}
+
 export interface IInteraction {
-  interactionMap: IAnimationMap;
+  blueprint: IAnimationMap;
   startFrom: string;
   animations: IAnimationData;
   dialogue: IDialogue

@@ -1,17 +1,31 @@
 import { useEffect, useState } from "react";
 import * as THREE from "three";
-import { IAnimationData, IInteraction, IInteractionDef } from "@types";
+import { IAnimationData, IDialogue, IInteraction, IInteractionDef, IThreeScene } from "@types";
 import { last } from "@utils";
+
+interface IInteract {
+  state?: IInteractionDef | string;
+  next?: () => void;
+  interact?: () => void;
+}
 
 const useInteraction = (
   model: any,
-  { interactionMap, startFrom, animations }: IInteraction
-) => {
+  sceneComponents: IThreeScene,
+  { interactionMap, startFrom, animations, dialogue }: IInteraction
+): IInteract => {
   const [interacted, setInteracted] = useState<number | null>(null);
   const [state, setState] = useState<IInteractionDef | string>(startFrom);
   // todo add "history" - array of strings representing past states in order
   const { createMixer } = useAnimation(model, state, animations, startFrom);
   const [map] = useState<{ [key: string]: IInteractionDef }>(interactionMap); // eventually expose setMap to model component?
+
+  const interact = () => setInteracted(Date.now());
+
+  useDialogue(dialogue, {
+    state,
+    next: interact
+  }, sceneComponents)
 
   useEffect(() => {
     if (!model) return;
@@ -27,10 +41,21 @@ const useInteraction = (
   }, [interacted]);
 
   return {
-    state,
-    next: () => setInteracted(Date.now()),
-    interact: () => setInteracted(Date.now())
+    interact
   }
+}
+
+const useDialogue = (
+  dialogue: IDialogue,
+  { state, next }: IInteract,
+  { scene, camera, renderer }: IThreeScene
+) => {
+  useEffect(() => {
+    if (!(scene && camera && renderer)) return;
+    if (typeof state === 'string') return;
+    const currentState = last(state!.steps);
+    dialogue(scene, next!)[currentState]?.();
+  }, [state]);
 }
 
 const useAnimation = (

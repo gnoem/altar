@@ -13,38 +13,7 @@ const Torus: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
   const interactionName = 'oracle';
   const interaction = interactions[interactionName];
   const { startFrom, animations } = interaction;
-  const { state, next, interact } = useInteraction(model, interaction);
-  
-  useEffect(() => {
-    const { scene, camera, renderer } = sceneComponents;
-    if (!(scene && camera && renderer)) return;
-    if (typeof state === 'string') return;
-    if (last(state.steps) === 'welcome') {
-      const name = prompt(`
-        hi, welcome to the altar\n
-        its nice to have a visitors!\n
-        please enter your name
-      `);
-      if (!name || ['no', 'nope', 'no thanks', 'no thank you'].includes(name)) {
-        alert(`
-          thats ok, i understand not wanting to share. stranger danger and all.
-        `)
-      } else {
-        alert(`
-          hi ${name} pleasure to make your acquaintance :)
-        `)
-      }
-      alert(`
-        im the oracle here, i can help you if you have questions or are not sure how this works.\n
-        to start, after you close out of this box, why not try clicking and dragging your cursor to look around?\n
-        i'll be here in the water if you need me.\n
-      `);
-      next();
-    }
-    if (last(state.steps) === 'welcomed') {
-      scene.userData.unlock('lookaround');
-    }
-  }, [state]);
+  const { interact } = useInteraction(model, sceneComponents, interaction);
   
   useEffect(() => {
     if (model) return;

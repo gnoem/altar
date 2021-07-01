@@ -26,6 +26,40 @@ const interactionMap: {
   }
 }
 
+const dialogue = (scene: THREE.Scene, next: () => void): {
+  [state: string]: () => void
+} => {
+  const welcome = () => {
+    const name = prompt(`
+      hi, welcome to the altar\n
+      its nice to have a visitors!\n
+      please enter your name
+    `);
+    if (!name || ['no', 'nope', 'no thanks', 'no thank you'].includes(name)) {
+      alert(`
+        thats ok, i understand not wanting to share. stranger danger and all.
+      `)
+    } else {
+      alert(`
+        hi ${name} pleasure to make your acquaintance :)
+      `)
+    }
+    alert(`
+      im the oracle here, i can help you if you have questions or are not sure how this works.\n
+      to start, after you close out of this box, why not try clicking and dragging your cursor to look around?\n
+      i'll be here in the water if you need me.\n
+    `);
+    next();
+  }
+  const welcomed = () => {
+    scene.userData.unlock('lookaround');
+  }
+  return {
+    welcome,
+    welcomed
+  }
+}
+
 const startFrom = Object.keys(interactionMap)[0];
 
 const rawKeyframeData = (): { [key: string]: IKeyframe } => {
@@ -109,5 +143,6 @@ const animations = {
 export {
   interactionMap,
   startFrom,
-  animations
+  animations,
+  dialogue
 }

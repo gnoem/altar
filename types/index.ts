@@ -39,8 +39,13 @@ export interface IAnimationMap {
   [start: string]: IInteractionDef
 }
 
+export type IDialogue = (scene: THREE.Scene, next: () => void) => {
+  [state: string]: () => void
+}
+
 export interface IInteraction {
   interactionMap: IAnimationMap;
   startFrom: string;
-  animations: IAnimationData
+  animations: IAnimationData;
+  dialogue: IDialogue
 }

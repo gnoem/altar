@@ -1,31 +1,61 @@
 import React, { useState, useEffect } from "react";
 import * as THREE from "three";
-import { materials, animations } from "@lib";
+import { materials, interactions } from "@lib";
 import { ILoadedObject } from "@types";
 import { castModel, loadObject } from "@utils";
-import { useAnimation } from "@hooks";
+import { useInteraction } from "@hooks";
 
 // animation w/ react-spring: https://codesandbox.io/embed/react-three-fiber-gestures-08d22?codemirror=1
 
 const Torus: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
   const [model, setModel] = useState<any>(null);
   
-  const animationName = 'riseFromWater';
-  const animation = animations[animationName];
-  const { startFrom, rawKeyframeData } = animation;
-  const { toggleAnimation } = useAnimation(model, animation);
+  const interactionName = 'oracle';
+  const interaction = interactions[interactionName];
+  const { startFrom, animations } = interaction;
+  const { state, next, interact } = useInteraction(model, interaction);
+  
+  useEffect(() => {
+    const { scene, camera, renderer } = sceneComponents;
+    if (!(scene && camera && renderer)) return;
+    if (state === 'welcome') {
+      const name = prompt(`
+        hi, welcome to the altar\n
+        its nice to have a visitors!\n
+        please enter your name
+      `);
+      if (!name) {
+        alert(`
+          thats ok, i understand not wanting to share. stranger danger and all.
+        `)
+      } else {
+        alert(`
+          hi ${name} pleasure to make your acquaintance :)
+        `)
+      }
+      alert(`
+        im the oracle here, i can help you if you have questions or are not sure how this works.\n
+        to start, after you close out of this box, why not try clicking and dragging your cursor to look around?\n
+        i'll be in the water if you need me.\n
+      `);
+      next();
+    }
+    if (state === 'welcomed') {
+      scene.userData.unlock('lookaround');
+    }
+  }, [state]);
   
   useEffect(() => {
     if (model) return;
     const geometry = new THREE.TorusGeometry(1, 0.5, 64, 64);
     const material = new THREE.ShaderMaterial(materials.gradient('hotpink', 'yellow'));
     const torus = new THREE.Mesh(geometry, material);
-    const initial = rawKeyframeData[startFrom];
+    const initial = animations.rawKeyframeData()[startFrom];
     castModel.position(torus, initial.position);
     castModel.rotation(torus, initial.rotation);
     torus.userData.hoverCursor = 'pointer';
     torus.userData.events = {
-      click: toggleAnimation
+      click: interact
     }
     loadObject(torus, sceneComponents, null, setLoaded);
     setModel(torus);

@@ -24,3 +24,14 @@ export interface IAnimation {
   rawKeyframeData: { [key: string]: IKeyframe }
   playAnimation: (mixer: THREE.AnimationMixer) => { [key: string]: () => void }
 }
+
+export interface IAnimationData {
+  rawKeyframeData: () => { [key: string]: IKeyframe }
+  playAnimation: (mixer: THREE.AnimationMixer) => { [key: string]: () => void }
+}
+
+export interface IInteraction {
+  interactionMap: { [start: string]: string | null };
+  startFrom: string;
+  animations: IAnimationData
+}

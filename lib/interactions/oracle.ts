@@ -1,24 +1,28 @@
-import { IAnimation, IKeyframe } from "@types";
+import { IAnimation, IInteraction, IKeyframe } from "@types";
 import * as THREE from "three";
 
-const animationMap: {
+const interactionMap: {
   [start: string]: string | null
 } = {
   'underwater': 'abovewater',
   'abovewater': 'welcome',
-  'welcome': 'underwater'
+  'welcome': 'welcomed'
 }
 
-const startFrom = Object.keys(animationMap)[0];
+const startFrom = Object.keys(interactionMap)[0];
 
-const rawKeyframeData: { [key: string]: IKeyframe } = {
-  underwater: {
+const rawKeyframeData = (): { [key: string]: IKeyframe } => {
+  const underwater = {
     rotation: [0, Math.PI, 0],
     position: [0, -6, 0]
-  },
-  abovewater: {
+  }
+  const abovewater = {
     rotation: [0, 0, 0],
     position: [0, 0, 0]
+  }
+  return {
+    underwater,
+    abovewater
   }
 }
 
@@ -30,8 +34,8 @@ const getKeyframeTracks = () => {
   }
   const getKeyframe = (name: string) => {
     return {
-      rotation: getQuaternion(rawKeyframeData[name].rotation),
-      position: rawKeyframeData[name].position
+      rotation: getQuaternion(rawKeyframeData()[name].rotation),
+      position: rawKeyframeData()[name].position
     }
   }
   const trackData = (initial: any, final: any) => {
@@ -58,7 +62,7 @@ const getKeyframeTracks = () => {
   }
   return {
     'abovewater': trackData(getKeyframe('underwater'), getKeyframe('abovewater')),
-    'underwater': trackData(getKeyframe('abovewater'), getKeyframe('underwater'))
+    'underwater': trackData(getKeyframe('abovewater'), getKeyframe('underwater')),
   }
 }
 
@@ -81,15 +85,18 @@ const playAnimation = (mixer: THREE.AnimationMixer): {
   }
   return {
     abovewater,
-    underwater
+    underwater,
+    welcomed: underwater
   }
 }
 
-const riseFromWater: IAnimation = {
-  animationMap,
-  startFrom,
+const animations = {
   rawKeyframeData,
   playAnimation
 }
 
-export default riseFromWater;
+export {
+  interactionMap,
+  startFrom,
+  animations
+}

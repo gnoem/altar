@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import * as THREE from "three";
 import { Loop, OrbitControls, RGBELoader, RoughnessMipmapper, objects } from "@lib";
 import { IThreeScene } from "@types";
+import { mutateStateArray } from "@utils";
 
 const { Water, Sky } = objects;
 
@@ -11,6 +12,9 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
   const [camera, setCamera] = useState<THREE.Camera | null>(null);
   const [loop, setLoop] = useState<Loop | null>(null);
   const [renderer, setRenderer] = useState<THREE.WebGLRenderer | null>(null);
+  const [unlocked, setUnlocked] = useState<string[]>([]);
+  const [newPower, setNewPower] = useState<string | null>(null);
+
   useEffect(() => {
     if (!sceneRef || isSet) return;
     const scene = new THREE.Scene();
@@ -21,12 +25,14 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
     });
     const loop = new Loop(scene, camera, renderer);
     camera.position.set(0, 0, 10);
-    dragToLookAround(camera, renderer);
     addLighting(scene);
     const water = addWater(scene);
     addEnvironmentTexture(scene, camera, renderer);
     scene.userData = {
-      canvas: sceneRef
+      canvas: sceneRef,
+      unlock: (power: string) => {
+        setNewPower(power);
+      }
     }
     renderer.shadowMap.enabled = true;
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -41,11 +47,29 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
       // @ts-ignore
       water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
       loop.start();
-      //renderer.render(scene, camera);
     }
     animate();
     setIsSet(true);
   }, [isSet, sceneRef]);
+
+  useEffect(() => {
+    if (!(scene && camera && renderer && newPower)) return;
+    if (unlocked.includes(newPower)) return;
+    if (newPower === 'lookaround') {
+      dragToLookAround(camera, renderer);
+    }
+    setUnlocked(mutateStateArray((array: string[]) => {
+      if (array.includes(newPower)) return null;
+      return array.push(newPower);
+    }));
+    setNewPower(null);
+  }, [scene, camera, renderer, newPower, unlocked]);
+
+  useEffect(() => {
+    if (!(scene && camera && renderer)) return;
+    scene.userData.unlocked = unlocked;
+  }, [unlocked.length]);
+
   return {
     scene,
     camera,

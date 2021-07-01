@@ -8,6 +8,7 @@ import {
 } from "./three";
 
 export * as animations from "./animations";
+export * as interactions from "./interactions";
 export * as materials from "./materials";
 export * as objects from "./objects";
 

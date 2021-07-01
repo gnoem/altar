@@ -1,9 +1,9 @@
 import * as THREE from "three";
 import { IThreeScene } from "@types";
 
-export const mutateStateArray = (update: (array: any[]) => void) => (prevArray: React.SetStateAction<any>) => {
+export const mutateStateArray = (update: ((array: any[]) => void) | null) => (prevArray: React.SetStateAction<any>) => {
   const arrayToReturn = [...prevArray];
-  update(arrayToReturn);
+  update?.(arrayToReturn);
   return arrayToReturn;
 }
 

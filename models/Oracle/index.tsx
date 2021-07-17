@@ -7,7 +7,7 @@ import { castModel, loadObject } from "@utils";
 
 const Head: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
   const [model, setModel] = useState<any>(null);
-  const object = useGLTF('gltf/head.glb');
+  const object = useGLTF('gltf/oracle.glb');
 
   const interactionName = 'oracle';
   const interaction = interactions[interactionName];

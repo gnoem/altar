@@ -1,2 +1,2 @@
-export { default as Head } from "./Head";
+export { default as Oracle } from "./Oracle";
 export { default as Torus } from "./Torus";

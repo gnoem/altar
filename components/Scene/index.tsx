@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import styles from "./Scene.module.css";
 import { useMouseEvent, useScene } from "@hooks";
-import { Head, Torus } from "@models";
+import { Oracle, Torus } from "@models";
 import { ILoadedObject, IThreeScene } from "@types";
 import { mutateStateArray } from "@utils";
 
@@ -11,7 +11,7 @@ interface ISceneObject {
 }
 
 const objectMap: { [objectName: string]: React.FC<ILoadedObject> } = {
-  'head': (props) => <Head {...props} />,
+  'head': (props) => <Oracle {...props} />,
   'torus': (props) => <Torus {...props} />
 }
 

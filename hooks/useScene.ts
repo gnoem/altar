@@ -23,6 +23,7 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
       alpha: true,
       antialias: true
     });
+    renderer.setPixelRatio(window.devicePixelRatio);
     const loop = new Loop(scene, camera, renderer);
     camera.position.set(0, 0, 10);
     addLighting(scene);

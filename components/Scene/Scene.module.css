@@ -6,17 +6,13 @@
   justify-content: center;
 }
 .Scene > canvas {
-  /* background: url('/textures/skyrimbg2.jpg') fixed;
-  background-size: cover; */
   transition: 0.2s;
 }
 .Scene.loading > canvas {
   opacity: 0;
 }
-.Scene.loading::before {
+.Scene.loading svg {
   position: absolute;
-  content: 'loading...';
-  text-transform: uppercase;
-  font-weight: bold;
-  font-size: 5rem;
+  width: 100px;
+  height: 100px;
 }

@@ -4,6 +4,7 @@ import { useMouseEvent, useScene } from "@hooks";
 import { Oracle, Torus } from "@models";
 import { ILoadedObject, IThreeScene } from "@types";
 import { mutateStateArray } from "@utils";
+import { Loader } from "@components";
 
 interface ISceneObject {
   name: string;
@@ -16,6 +17,7 @@ const objectMap: { [objectName: string]: React.FC<ILoadedObject> } = {
 }
 
 const Scene: React.FC<{ objects: string[]; }> = ({ objects: objectNames }): JSX.Element => {
+  const [loading, setLoading] = useState<boolean>(true);
   const [objects, setObjects] = useState<React.FC<ILoadedObject>[] | null>(null);
   const [objectsList, setObjectsList] = useState<ISceneObject[] | null>(null);
   const [sceneRef, createSceneRef] = useState<HTMLDivElement | null>(null);
@@ -31,6 +33,13 @@ const Scene: React.FC<{ objects: string[]; }> = ({ objects: objectNames }): JSX.
   const isReady = useMemo(() => {
     return (sceneComponents && objectsList?.every(obj => obj.loaded));
   }, [sceneComponents, objectsList]);
+  useEffect(() => {
+    if (isReady) {
+      setTimeout(() => {
+        setLoading(false);
+      }, 3000);
+    }
+  }, [isReady]);
   const { scene, camera, renderer } = sceneComponents;
   useEffect(() => {
     if (!objectsList || !sceneComponents) return;
@@ -55,7 +64,8 @@ const Scene: React.FC<{ objects: string[]; }> = ({ objects: objectNames }): JSX.
   }, [objects, objectsList, sceneComponents]);
   return (
     <>
-      <div ref={createSceneRef} className={`${styles.Scene} ${isReady ? '' : styles.loading}`}>
+      <div ref={createSceneRef} className={`${styles.Scene} ${loading ? styles.loading : ''}`}>
+        {loading && <Loader />}
         {objects}
       </div>
     </>

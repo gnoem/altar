@@ -8,9 +8,11 @@ const Home: React.FC = (): JSX.Element => {
   const router = useRouter();
   return (
     <Homepage>
-      <div className={styles.enter} onClick={() => router.push('/altar')}>
-        <h1>ASTRAEUS</h1>
-        <h2>INTERACTIVE VIRTUAL ALTAR</h2>
+      <div className={styles.Home}>
+        <div className={styles.enter} onClick={() => router.push('/altar')}>
+          <h1>GNAGUA W16V</h1>
+          <h2>🐊</h2>
+        </div>
       </div>
     </Homepage>
   )

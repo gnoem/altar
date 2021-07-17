@@ -1,3 +1,53 @@
+div.Home {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
 div.enter {
   cursor: pointer;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+div.enter h1 {
+  font-family: var(--display-font);
+  font-weight: 100;
+  font-size: 7rem;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+div.enter h2 {
+  font-size: 10rem;
+  font-weight: 100;
+  text-transform: uppercase;
+  margin-left: 4rem;
+  margin-top: 7rem;
+}
+
+div.enter h1, div.enter h2 {
+  line-height: 7rem;
+  position: absolute;
+  color: var(--secondary-color);
+}
+
+div.Home button {
+  color: var(--primary-color);
+}
+
+@keyframes header {
+  0% {
+    transform: scaleY(0);
+  }
+  100% {
+    transform: scaleY(1);
+  }
 }

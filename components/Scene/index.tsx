@@ -3,7 +3,7 @@ import styles from "./Scene.module.css";
 import { Loader } from "@components";
 import { useMouseEvent, useScene } from "@hooks";
 import { Oracle, Torus } from "@models";
-import { ILoadedObject, IThreeScene } from "@types";
+import { IThreeScene } from "@types";
 import { mutateStateArray } from "@utils";
 
 interface ISceneObject {
@@ -56,12 +56,12 @@ const useVerifyLoaded = (objectNames: string[], sceneComponents: IThreeScene): {
   }
 }
 
-const Scene: React.FC<{ objects: string[]; }> = ({ objects }): JSX.Element => {
+const Scene: React.FC<{ objects: string[]; }> = ({ objects: objectNames }): JSX.Element => {
   const [sceneRef, createSceneRef] = useState<HTMLDivElement | null>(null);
   const sceneComponents: IThreeScene = useScene(sceneRef);
-  const { loading, objectsList } = useVerifyLoaded(objects, sceneComponents);
+  const { loading, objectsList } = useVerifyLoaded(objectNames, sceneComponents);
   useMouseEvent(sceneComponents);
-  const include = (objectName: string): JSX.Element | null => {
+  const includeElement = (objectName: string): JSX.Element | null => {
     if (!objectsList) return null;
     const shouldInclude = objectsList.some((object: ISceneObject): boolean => object.name === objectName);
     const Element = objectsMap[objectName];
@@ -77,7 +77,7 @@ const Scene: React.FC<{ objects: string[]; }> = ({ objects }): JSX.Element => {
   return (
     <div ref={createSceneRef} className={`${styles.Scene} ${loading ? styles.loading : ''}`}>
       {loading && <Loader />}
-      {include('oracle')}
+      {objectNames.map(includeElement)}
     </div>
   )
 }

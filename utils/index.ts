@@ -44,18 +44,11 @@ export const castModel: {
 export const loadObject = (
   model: any,
   sceneComponents: IThreeScene,
-  animation: ((model: any) => void) | null,
   setLoaded: (value: boolean) => void
 ) => {
   const { scene, camera, renderer, loop } = sceneComponents;
   if (!(scene && camera && renderer && loop)) return;
   scene.add(model);
-  /* const animate = () => {
-    animation?.(model);
-    renderer.render(scene, camera);
-    requestAnimationFrame(animate);
-  }
-  animate(); */
   loop.add(model);
   setLoaded(true);
 }

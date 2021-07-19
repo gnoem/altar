@@ -28,7 +28,7 @@ const Torus: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
     torus.userData.events = {
       click: interact
     }
-    loadObject(torus, sceneComponents, null, setLoaded);
+    loadObject(torus, sceneComponents, setLoaded);
     setModel(torus);
   }, []);
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import styles from "./Scene.module.css";
 import { Loader } from "@components";
 import { useMouseEvent, useScene } from "@hooks";
-import { Oracle, Torus } from "@models";
+import { Bowl, Oracle, Torus } from "@models";
 import { IThreeScene } from "@types";
 import { mutateStateArray } from "@utils";
 
@@ -16,7 +16,8 @@ const objectsMap: {
   [objectName: string]: any
 } = {
   'oracle': Oracle,
-  'torus': Torus
+  'torus': Torus,
+  'bowl': Bowl
 }
 
 const useVerifyLoaded = (objectNames: string[], sceneComponents: IThreeScene): {
@@ -62,7 +63,8 @@ const Scene: React.FC<{ objects: string[]; }> = ({ objects: objectNames }): JSX.
   const { loading, objectsList } = useVerifyLoaded(objectNames, sceneComponents);
   useMouseEvent(sceneComponents);
   const includeElement = (objectName: string): JSX.Element | null => {
-    if (!objectsList) return null;
+    const { scene, camera, renderer } = sceneComponents;
+    if (!objectsList || !(scene && camera && renderer)) return null;
     const shouldInclude = objectsList.some((object: ISceneObject): boolean => object.name === objectName);
     const Element = objectsMap[objectName];
     const object = (

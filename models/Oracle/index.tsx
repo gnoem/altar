@@ -31,7 +31,7 @@ const Head: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
     object.userData.events = {
       click: interact
     }
-    loadObject(object, sceneComponents, null, setLoaded);
+    loadObject(object, sceneComponents, setLoaded);
     setModel(object);
   }, [object, model]);
 

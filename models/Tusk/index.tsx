@@ -5,9 +5,9 @@ import { interactions } from "@lib";
 import { ILoadedObject } from "@types";
 import { castModel, loadObject } from "@utils";
 
-const Head: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
+const Tusk: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
   const [model, setModel] = useState<any>(null);
-  const object = useGLTF('gltf/oracle.glb');
+  const object = useGLTF('gltf/tusk.glb', 'textures/bone.png');
 
   const interactionName = 'oracle';
   const interaction = interactions[interactionName];
@@ -26,7 +26,7 @@ const Head: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
     castModel.position(object, initial.position);
     castModel.rotation(object, initial.rotation);
     object.castShadow = true;
-    object.name = 'oracle';
+    object.name = 'head';
     object.userData.hoverCursor = 'pointer';
     object.userData.events = {
       click: interact
@@ -38,4 +38,4 @@ const Head: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
   return null;
 }
 
-export default Head;
+export default Tusk;

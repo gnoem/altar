@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import styles from "./Scene.module.css";
 import { Loader } from "@components";
 import { useMouseEvent, useScene } from "@hooks";
-import { Bowl, Oracle, Torus } from "@models";
+import { Tusk, Oracle, Torus } from "@models";
 import { IThreeScene } from "@types";
 import { mutateStateArray } from "@utils";
 
@@ -17,7 +17,7 @@ const objectsMap: {
 } = {
   'oracle': Oracle,
   'torus': Torus,
-  'bowl': Bowl
+  'tusk': Tusk
 }
 
 const useVerifyLoaded = (objectNames: string[], sceneComponents: IThreeScene): {
@@ -45,10 +45,11 @@ const useVerifyLoaded = (objectNames: string[], sceneComponents: IThreeScene): {
   useEffect(() => {
     if (!sceneComponents || !objectsList) return;
     const isReady = objectsList.every(obj => obj.loaded);
+    const delay = 0 // 3000;
     if (isReady) {
       setTimeout(() => {
         setLoading(false);
-      }, 3000);
+      }, delay);
     }
   }, [sceneComponents, objectsList]);
   return {

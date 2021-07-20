@@ -90,11 +90,12 @@ const useAnimation = (
 }
 
 const useDialogue = (
-  dialogue: IDialogue,
+  dialogue: IDialogue | null,
   { state, next, castState }: IInteract,
   { scene, camera, renderer }: IThreeScene
 ) => {
   useEffect(() => {
+    if (!dialogue) return;
     if (!(scene && camera && renderer)) return;
     if (typeof state === 'string') return;
     const currentState = last(state!.steps);

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import styles from "./Scene.module.css";
 import { Loader } from "@components";
 import { useMouseEvent, useScene } from "@hooks";
-import { Tusk, Oracle, Torus } from "@models";
+import { Tusks, Oracle, Torus } from "@models";
 import { IThreeScene } from "@types";
 import { mutateStateArray } from "@utils";
 
@@ -17,7 +17,7 @@ const objectsMap: {
 } = {
   'oracle': Oracle,
   'torus': Torus,
-  'tusk': Tusk
+  'tusks': Tusks
 }
 
 const useVerifyLoaded = (objectNames: string[], sceneComponents: IThreeScene): {

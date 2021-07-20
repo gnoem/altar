@@ -52,3 +52,10 @@ export const loadObject = (
   loop.add(model);
   setLoaded(true);
 }
+
+export const setMaterial = (Material: any, map: string, params: any) => (texture: any) => {
+  return new Material({
+    [map]: texture,
+    ...params
+  });
+}

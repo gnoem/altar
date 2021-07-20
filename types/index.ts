@@ -61,5 +61,5 @@ export interface IInteraction {
   blueprint: IAnimationMap;
   startFrom: string;
   animations: IAnimationData;
-  dialogue: IDialogue
+  dialogue: IDialogue | null
 }

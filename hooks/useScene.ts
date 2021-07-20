@@ -13,7 +13,7 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
   const [loop, setLoop] = useState<Loop | null>(null);
   const [renderer, setRenderer] = useState<THREE.WebGLRenderer | null>(null);
   const [unlocked, setUnlocked] = useState<string[]>([]);
-  const [newPower, setNewPower] = useState<string | null>(null);
+  const [newPower, setNewPower] = useState<string | null>('lookaround');
 
   useEffect(() => {
     if (!sceneRef || isSet) return;

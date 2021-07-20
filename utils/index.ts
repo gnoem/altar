@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { IThreeScene } from "@types";
+import { ISimpleObject, ITextureMap, IThreeScene } from "@types";
 
 export const mutateStateArray = (update: ((array: any[]) => void) | null) => (prevArray: React.SetStateAction<any>) => {
   const arrayToReturn = [...prevArray];
@@ -54,9 +54,9 @@ export const loadObject = (
   setLoaded(true);
 }
 
-export const setMaterial = (Material: any, map: string, params: any) => (texture: any) => {
+export const defineMaterial = (Material: any, params: ISimpleObject) => (textures: ITextureMap) => {
   return new Material({
-    [map]: texture,
+    ...textures,
     ...params
   });
 }

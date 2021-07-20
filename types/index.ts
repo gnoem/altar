@@ -1,6 +1,14 @@
 import { Loop } from "@lib";
 import * as THREE from "three";
 
+export interface ISimpleObject {
+  [key: string]: any
+}
+
+export interface IStringObject {
+  [key: string]: string
+}
+
 export interface IThreeScene {
   scene: THREE.Scene | null;
   camera: THREE.Camera | null;
@@ -62,4 +70,18 @@ export interface IInteraction {
   startFrom: string;
   animations: IAnimationData;
   dialogue: IDialogue | null
+}
+
+
+// loading textures
+
+export type ThreeMaterial = THREE.MeshBasicMaterial | THREE.MeshPhongMaterial;
+
+export interface ITextureMap {
+  [mapName: string]: string
+}
+
+export interface ILoadTextureInput {
+  textures: ITextureMap,
+  createMaterial: (textures: ITextureMap) => any
 }

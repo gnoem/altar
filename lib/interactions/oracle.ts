@@ -37,11 +37,11 @@ const dialogue = (
 } => {
   const welcome = () => {
     const name = prompt(`
-      hi, welcome to the altar\n
+      hi, welcome to the altar at GNAGUA W16V\n
       its nice to have a visitors!\n
       please enter your name
     `);
-    if (!name || ['no', 'nope', 'no thanks', 'no thank you'].includes(name)) {
+    if (!name || ['no', 'nope', 'no thanks', 'no thank you', 'fuck you', 'fuck u'].includes(name.toLowerCase().trim())) {
       alert(`
         thats ok, i understand not wanting to share. stranger danger and all.
       `)
@@ -53,7 +53,7 @@ const dialogue = (
     alert(`
       im the oracle here, i can help you if you have questions or are not sure how this works.\n
       to start, after you close out of this box, why not try clicking and dragging your cursor to look around?\n
-      i'll be here in the water if you need me.\n
+      (this altar is a work in progress - there is almost nothing here yet, but feel free to explore)
     `);
     next();
   }

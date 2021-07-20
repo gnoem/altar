@@ -1,22 +1,34 @@
 import React, { useState, useEffect } from "react";
 import * as THREE from "three";
-import { useGLTF, useInteraction, useLoadTexture } from "@hooks";
+import { useGLTF, useInteraction, useLoadTextures } from "@hooks";
 import { interactions } from "@lib";
-import { ILoadedObject } from "@types";
-import { castModel, loadObject, setMaterial } from "@utils";
+import { ILoadedObject, ILoadTextureInput } from "@types";
+import { castModel, loadObject, defineMaterial } from "@utils";
 
-const Tusk: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
-  const [model, setModel] = useState<any>(null);
-
-  const applyMaterial = setMaterial(THREE.MeshPhongMaterial, 'bumpMap', {
+const getTextureData = (): ILoadTextureInput => {
+  const textures = {
+    'bumpMap': 'textures/bone2.png'
+  }
+  
+  const createMaterial = defineMaterial(THREE.MeshPhongMaterial, {
     bumpScale: 0.1,
     color: 0x5D5046,
     specular: 0xBEB4AE,
     shininess: 5
   });
 
-  const texture = useLoadTexture('textures/bone2.png', applyMaterial);
-  const object = useGLTF('gltf/tusks.glb', texture);
+  return {
+    textures,
+    createMaterial
+  }
+}
+
+
+const Tusk: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
+  const [model, setModel] = useState<any>(null);
+
+  const material = useLoadTextures(getTextureData());
+  const object = useGLTF('gltf/tusks.glb', material);
 
   const interactionName = 'tusks';
   const interaction = interactions[interactionName];

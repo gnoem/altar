@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import * as THREE from "three";
 import { Loop, OrbitControls, RGBELoader, RoughnessMipmapper, objects } from "@lib";
 import { IThreeScene } from "@types";
-import { mutateStateArray } from "@utils";
+import { castModel, mutateStateArray } from "@utils";
 
-const { Water, Sky } = objects;
+const { Water } = objects;
 
 const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
   const [isSet, setIsSet] = useState<boolean>(false);
@@ -13,7 +13,7 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
   const [loop, setLoop] = useState<Loop | null>(null);
   const [renderer, setRenderer] = useState<THREE.WebGLRenderer | null>(null);
   const [unlocked, setUnlocked] = useState<string[]>([]);
-  const [newPower, setNewPower] = useState<string | null>('lookaround');
+  const [newPower, setNewPower] = useState<string | null>(null);
 
   useEffect(() => {
     if (!sceneRef || isSet) return;
@@ -90,13 +90,15 @@ const dragToLookAround = (camera: THREE.Camera, renderer: THREE.WebGLRenderer): 
 }
 
 const addLighting = (scene: THREE.Scene): void => {
-  const ambientLight = new THREE.AmbientLight( 0x777777, 0.5 );
-  const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
-  directionalLight.position.x = 2;
-  directionalLight.position.z = 0;
-  directionalLight.shadow.bias = 0.001;
-  directionalLight.shadow.normalBias = 0.003;
-  scene.add( directionalLight ); // needed for shadows!!
+  const ambientLight = new THREE.AmbientLight( 0xffffff, 0.3 );
+  const primaryLight = new THREE.DirectionalLight( 0xffffff, 1 );
+  const secondaryLight = new THREE.DirectionalLight( 0xffffff, 0.1 );
+  castModel.position(primaryLight, [50, 0, 0]);
+  castModel.position(secondaryLight, [-50, 0, 0]);
+  primaryLight.shadow.bias = 0.001;
+  primaryLight.shadow.normalBias = 0.003;
+  scene.add( primaryLight );
+  scene.add( secondaryLight ); // preserves texture in shadowed areas
   scene.add( ambientLight );
 }
 
@@ -123,49 +125,6 @@ const addEnvironmentTexture = (scene: THREE.Scene, camera: THREE.Camera, rendere
       roughnessMipmapper.dispose();
 
     } );
-}
-
-const addSky = (scene: THREE.Scene, renderer: THREE.WebGLRenderer, water: any) => {
-  let sun = new THREE.Vector3();
-  const sky = new Sky();
-  sky.scale.setScalar( 10000 );
-  scene.add( sky );
-  // @ts-ignore
-  const skyUniforms = sky.material.uniforms;
-  skyUniforms[ 'turbidity' ].value = 10;
-  skyUniforms[ 'rayleigh' ].value = 2;
-  skyUniforms[ 'mieCoefficient' ].value = 0.005;
-  skyUniforms[ 'mieDirectionalG' ].value = 0.8;
-  const parameters = {
-    elevation: 2,
-    azimuth: 180
-  }
-  const pmremGenerator = new THREE.PMREMGenerator( renderer );
-  const updateSun = () => {
-    const phi = THREE.MathUtils.degToRad( 90 - parameters.elevation );
-    const theta = THREE.MathUtils.degToRad( parameters.azimuth );
-    sun.setFromSphericalCoords( 1, phi, theta );
-    // @ts-ignore
-    sky.material.uniforms[ 'sunPosition' ].value.copy( sun );
-    water.material.uniforms[ 'sunDirection' ].value.copy( sun ).normalize();
-    // @ts-ignore
-    scene.environment = pmremGenerator.fromScene( sky ).texture;
-  }
-  updateSun();
-}
-
-const addNightSky = (scene: THREE.Scene) => {
-  const material = new THREE.MeshBasicMaterial();
-  const loader = new THREE.TextureLoader();
-  loader.load('textures/night.jpg', (texture) => {
-    material.map = texture;
-    material.needsUpdate = true;
-  });
-  const geometry = new THREE.PlaneGeometry(window.innerWidth, window.innerHeight, 32);
-  const sky = new THREE.Mesh(geometry, material);
-  sky.position.z = -500;
-  scene.add(sky);
-  return sky;
 }
 
 const addWater = (scene: THREE.Scene) => {

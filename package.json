@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "deploy": "git checkout vercel && git merge main && git push && git checkout main"
   },
   "dependencies": {
     "@react-spring/three": "^9.2.3",

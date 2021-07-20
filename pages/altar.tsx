@@ -5,7 +5,7 @@ import { Scene } from "@components";
 const Altar: React.FC = (): JSX.Element => {
   return (
     <Homepage>
-      <Scene objects={['tusks']} />
+      <Scene objects={['oracle', 'tusks']} />
     </Homepage>
   )
 }

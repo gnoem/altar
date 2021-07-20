@@ -35,6 +35,7 @@ const Tusk: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
     castModel.position(object, initial.position);
     castModel.rotation(object, initial.rotation);
     object.name = 'tusks';
+    object.userData.hoverCursor = 'pointer'; // remove after first interaction?
     object.userData.events = {
       click: interact
     }

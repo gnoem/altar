@@ -44,7 +44,8 @@ export const castModel: {
 export const loadObject = (
   model: any,
   sceneComponents: IThreeScene,
-  setLoaded: (value: boolean) => void
+  setLoaded: (value: boolean) => void,
+  //animation?: (model: any) => void
 ) => {
   const { scene, camera, renderer, loop } = sceneComponents;
   if (!(scene && camera && renderer && loop)) return;

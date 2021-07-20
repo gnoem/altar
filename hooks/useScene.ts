@@ -13,7 +13,7 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
   const [loop, setLoop] = useState<Loop | null>(null);
   const [renderer, setRenderer] = useState<THREE.WebGLRenderer | null>(null);
   const [unlocked, setUnlocked] = useState<string[]>([]);
-  const [newPower, setNewPower] = useState<string | null>(null);
+  const [newPower, setNewPower] = useState<string | null>('lookaround');
 
   useEffect(() => {
     if (!sceneRef || isSet) return;
@@ -90,10 +90,10 @@ const dragToLookAround = (camera: THREE.Camera, renderer: THREE.WebGLRenderer): 
 }
 
 const addLighting = (scene: THREE.Scene): void => {
-  const ambientLight = new THREE.AmbientLight( 0x777777 );
-  const directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
+  const ambientLight = new THREE.AmbientLight( 0x777777, 0.5 );
+  const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
   directionalLight.position.x = 2;
-  directionalLight.position.z = 2;
+  directionalLight.position.z = 0;
   directionalLight.shadow.bias = 0.001;
   directionalLight.shadow.normalBias = 0.003;
   scene.add( directionalLight ); // needed for shadows!!

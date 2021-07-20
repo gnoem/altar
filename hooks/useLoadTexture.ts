@@ -10,7 +10,7 @@ const useLoadTexture = (materialPath: string, createMaterial?: any): any => {
     textureLoader.load(materialPath, (texture: any) => {
       texture.encoding = THREE.sRGBEncoding;
       texture.flipY = false;
-      const loadedMaterial = createMaterial(texture);
+      const loadedMaterial = createMaterial?.(texture) ?? texture;
       setMaterial(loadedMaterial);
     });
   }, []);

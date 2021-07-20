@@ -79,10 +79,10 @@ const animationKeyframes = (): IKeyframeMap => {
   }
   const welcomed = {
     rotation: [0, Math.PI, 0],
-    position: [0, -5, 0],
-    scale: [0.2, 0.2, 0.2]
+    position: [0, -9, 0],
+    scale: [1, 1, 1]
   }
-  const help = {
+  const help = abovewater ?? {
     rotation: [-Math.PI / 4, 0, 0],
     position: [0, -4, 0],
     scale: [0.5, 0.5, 0.5]

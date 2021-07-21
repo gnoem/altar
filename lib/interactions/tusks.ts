@@ -22,7 +22,7 @@ const animationKeyframes = (): IKeyframeMap => {
   }
   const abovewater = {
     rotation: [0, 0, 0],
-    position: [0, -1, 15],
+    position: [0, -0.5, 15],
     scale: [1, 1, 1]
   }
   return {

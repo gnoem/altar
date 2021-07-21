@@ -5,6 +5,7 @@ import { useMouseEvent, useScene } from "@hooks";
 import { Tusks, Oracle, Torus, Moon } from "@models";
 import { IThreeScene } from "@types";
 import { mutateStateArray } from "@utils";
+import Bowl from "@models/Bowl";
 
 interface ISceneObject {
   name: string;
@@ -18,7 +19,8 @@ const objectsMap: {
   'oracle': Oracle,
   'torus': Torus,
   'tusks': Tusks,
-  'moon': Moon
+  'moon': Moon,
+  'bowl': Bowl
 }
 
 const useVerifyLoaded = (objectNames: string[], sceneComponents: IThreeScene): {

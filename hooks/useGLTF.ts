@@ -1,29 +1,36 @@
 /* eslint-disable global-require */
+import { ThreeMaterial } from "@types";
 import { useEffect, useState } from "react";
-import * as THREE from "three";
 
-const useGLTF = (filePath: string, texture?: any): any => {
-  const [scene, setScene] = useState(null);
+interface IMaterial {
+  [meshName: string]: ThreeMaterial | 'loading'
+}
+
+const useGLTF = (filePath: string, materials?: IMaterial): any => {
+  const [object, setObject] = useState(null);
   
   useEffect(() => {
-    if (scene || (texture === 'loading')) return;
+    const materialsStillLoading = materials && Object.values(materials).some(material => material === 'loading');
+    if (object || materialsStillLoading) return;
     const renderObject = () => {
       const { GLTFLoader } = require('three/examples/jsm/loaders/GLTFLoader.js');
       const loader = new GLTFLoader();
       loader.load(filePath, (gltf: any) => {
         console.log(`loaded model at ${filePath}`);
-        gltf.scene.traverse((child: any) => {
-          if (texture && child.material) {
-            child.material = texture;
-          }
-        });
-        setScene(gltf.scene);
+        if (materials) {
+          gltf.scene.traverse((child: any) => {
+            if (child.material && materials[child.name]) {
+              child.material = materials[child.name];
+            }
+          });
+        }
+        setObject(gltf.scene);
       });
     }
     renderObject();
-  }, [scene, texture]);
+  }, [object, materials]);
 
-  return scene;
+  return object;
 }
 
 export default useGLTF;

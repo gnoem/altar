@@ -75,7 +75,7 @@ export interface IInteraction {
 
 // loading textures
 
-export type ThreeMaterial = THREE.MeshBasicMaterial | THREE.MeshPhongMaterial;
+export type ThreeMaterial = THREE.MeshBasicMaterial | THREE.MeshPhysicalMaterial | THREE.MeshPhongMaterial;
 
 export interface ITextureMap {
   [mapName: string]: string

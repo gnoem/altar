@@ -1,26 +1,39 @@
 /* eslint-disable global-require */
-import { ThreeMaterial } from "@types";
 import { useEffect, useState } from "react";
+import * as THREE from "three";
+import { ThreeMaterial } from "@types";
 
-interface IMaterial {
-  [meshName: string]: ThreeMaterial | 'loading'
+interface IConfig {
+  material: ThreeMaterial | 'loading',
+  userData: {
+    hoverCursor: string;
+    events: {
+      click: () => void;
+    }
+  }
 }
 
-const useGLTF = (filePath: string, materials?: IMaterial): any => {
+type IConfigFunction = (object?: THREE.Mesh) => IConfig;
+
+interface IConfigObject {
+  [meshName: string]: IConfigFunction
+}
+
+const useGLTF = (filePath: string, config?: IConfigObject): any => {
   const [object, setObject] = useState(null);
   
   useEffect(() => {
-    const materialsStillLoading = materials && Object.values(materials).some(material => material === 'loading');
+    const materialsStillLoading = config && Object.values(config).some((mesh: IConfigFunction) => mesh().material === 'loading');
     if (object || materialsStillLoading) return;
     const renderObject = () => {
       const { GLTFLoader } = require('three/examples/jsm/loaders/GLTFLoader.js');
       const loader = new GLTFLoader();
       loader.load(filePath, (gltf: any) => {
         console.log(`loaded model at ${filePath}`);
-        if (materials) {
+        if (config) {
           gltf.scene.traverse((child: any) => {
-            if (child.material && materials[child.name]) {
-              child.material = materials[child.name];
+            if ((child.type === 'Mesh') && config[child.name]) {
+              Object.assign(child, config[child.name](child));
             }
           });
         }
@@ -28,7 +41,7 @@ const useGLTF = (filePath: string, materials?: IMaterial): any => {
       });
     }
     renderObject();
-  }, [object, materials]);
+  }, [object, config]);
 
   return object;
 }

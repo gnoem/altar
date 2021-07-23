@@ -25,16 +25,28 @@ const getTuskTexture = (): ILoadTextureInput => {
 
 const Tusk: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
   const [model, setModel] = useState<any>(null);
-
-  const tuskMaterial = useLoadTextures(getTuskTexture());
-  const object = useGLTF('gltf/pedestal.glb', {
-    'tusks': tuskMaterial
-  });
-
   const interactionName = 'tusks';
   const interaction = interactions[interactionName];
   const { startFrom, animations } = interaction;
   const { interact } = useInteraction(model, sceneComponents, interaction);
+
+  const tuskMaterial = useLoadTextures(getTuskTexture());
+  const object = useGLTF('gltf/pedestal.glb', {
+    'tusks': (object: any) => ({
+      material: tuskMaterial,
+      userData: {
+        hoverCursor: 'pointer',
+        events: {
+          click: () => {
+            interact?.();
+            if (object.userData.hoverCursor) {
+              object.userData.hoverCursor = '';
+            }
+          }
+        }
+      }
+    })
+  });
 
   useEffect(() => {
     if (!object || model) return;

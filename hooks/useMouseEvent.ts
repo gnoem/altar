@@ -19,6 +19,7 @@ const useMouseEvent = (sceneComponents: IThreeScene, deps: string[] = []): void 
           object.forEach((child: any) => { // todo make recursive?
             if (child instanceof THREE.Group) {
               child.children.forEach((innerChild: any) => {
+                if (innerChild.userData.events) return; // if userData has been set manually
                 innerChild.userData = child.userData;
               });
               innerObjects.push(child.children);

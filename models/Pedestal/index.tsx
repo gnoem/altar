@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import * as THREE from "three";
-import { useGLTF, useInteraction, useLoadTextures } from "@hooks";
+import { useGLTF, useInteraction } from "@hooks";
 import { interactions } from "@lib";
-import { ILoadedObject, ILoadTextureInput } from "@types";
-import { castModel, loadObject, defineMaterial } from "@utils";
+import { ILoadedObject, ILoadTextureInput, ISimpleObject } from "@types";
+import { castModel, loadObject, defineMaterial, loadMaterialFromTextures } from "@utils";
 
 const getTuskTexture = (): ILoadTextureInput => {
   const textures = {
@@ -23,29 +23,33 @@ const getTuskTexture = (): ILoadTextureInput => {
   }
 }
 
-const Tusk: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
+const tusksConfig = ({ interact }: ISimpleObject) => (object?: THREE.Mesh) => {
+  const events = {
+    click: () => {
+      interact?.();
+      if (object?.userData?.hoverCursor) {
+        object.userData.hoverCursor = '';
+      }
+    }
+  }
+  return {
+    material: loadMaterialFromTextures(getTuskTexture()),
+    userData: {
+      hoverCursor: 'pointer',
+      events
+    }
+  }
+}
+
+const Pedestal: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
   const [model, setModel] = useState<any>(null);
   const interactionName = 'tusks';
   const interaction = interactions[interactionName];
   const { startFrom, animations } = interaction;
   const { interact } = useInteraction(model, sceneComponents, interaction);
 
-  const tuskMaterial = useLoadTextures(getTuskTexture());
   const object = useGLTF('gltf/pedestal.glb', {
-    'tusks': (object: any) => ({
-      material: tuskMaterial,
-      userData: {
-        hoverCursor: 'pointer',
-        events: {
-          click: () => {
-            interact?.();
-            if (object.userData.hoverCursor) {
-              object.userData.hoverCursor = '';
-            }
-          }
-        }
-      }
-    })
+    'tusks': tusksConfig({ interact })
   });
 
   useEffect(() => {
@@ -71,4 +75,4 @@ const Tusk: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
   return null;
 }
 
-export default Tusk;
+export default Pedestal;

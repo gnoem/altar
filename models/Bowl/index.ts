@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import * as THREE from "three";
-import { useGLTF, useInteraction, useLoadTextures } from "@hooks";
-import { interactions } from "@lib";
+import { useGLTF } from "@hooks";
 import { ILoadedObject, ILoadTextureInput } from "@types";
 import { castModel, loadObject, defineMaterial } from "@utils";
 

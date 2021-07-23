@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import * as THREE from "three";
-import { useLoadTextures } from "@hooks";
 import { ILoadedObject, ILoadTextureInput } from "@types";
-import { castModel, loadObject, defineMaterial } from "@utils";
+import { castModel, loadObject, defineMaterial, loadMaterialFromTextures } from "@utils";
 
 const getTextureData = (): ILoadTextureInput => {
   const textures = {
@@ -24,11 +23,10 @@ const getTextureData = (): ILoadTextureInput => {
 const Moon: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
   const [model, setModel] = useState<any>(null);
 
-  const geometry = new THREE.SphereGeometry(7, 64, 64);
-  const material = useLoadTextures(getTextureData());
-  
   useEffect(() => {
-    if (model || (material === 'loading')) return;
+    if (model) return;
+    const geometry = new THREE.SphereGeometry(7, 64, 64);
+    const material = loadMaterialFromTextures(getTextureData());
     const moon = new THREE.Mesh(geometry, material);
     castModel.position(moon, [0, 70, 200]);
     castModel.scale(moon, [7, 7, 7]);
@@ -37,7 +35,7 @@ const Moon: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
     }
     loadObject(moon, sceneComponents, setLoaded);
     setModel(moon);
-  }, [material]);
+  }, []);
 
   return null;
 }

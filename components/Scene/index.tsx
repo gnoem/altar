@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import styles from "./Scene.module.css";
 import { Loader } from "@components";
 import { useMouseEvent, useScene } from "@hooks";
-import { Tusks, Oracle, Torus, Moon } from "@models";
+import { Pedestal, Oracle, Torus, Moon } from "@models";
 import { IThreeScene } from "@types";
 import { mutateStateArray } from "@utils";
 import Bowl from "@models/Bowl";
@@ -18,7 +18,7 @@ const objectsMap: {
 } = {
   'oracle': Oracle,
   'torus': Torus,
-  'tusks': Tusks,
+  'pedestal': Pedestal,
   'moon': Moon,
   'bowl': Bowl
 }

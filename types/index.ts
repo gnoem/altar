@@ -85,3 +85,15 @@ export interface ILoadTextureInput {
   textures: ITextureMap,
   createMaterial: (textures: ITextureMap) => any
 }
+
+// advanced mesh config for loading GLTFs
+
+export interface IMeshConfig {
+  material: ThreeMaterial | 'loading',
+  userData: {
+    hoverCursor: string;
+    events: {
+      click: () => void;
+    }
+  }
+}

@@ -1,3 +1,4 @@
+export { default as useAddObject } from "./useAddObject";
 export { default as useMouseEvent } from "./useMouseEvent";
 export { default as useGLTF } from "./useGLTF";
 export { default as useInteraction } from "./useInteraction";

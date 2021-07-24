@@ -1,4 +1,3 @@
-export { default as useAnimation } from "./useAnimation";
 export { default as useMouseEvent } from "./useMouseEvent";
 export { default as useGLTF } from "./useGLTF";
 export { default as useInteraction } from "./useInteraction";

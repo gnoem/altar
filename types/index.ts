@@ -26,13 +26,6 @@ export interface IKeyframe {
   [key: string]: number[]
 }
 
-export interface IAnimation {
-  animationMap: { [start: string]: string | null };
-  startFrom: string;
-  animationKeyframes: () => IKeyframeMap;
-  playAnimation: (mixer: THREE.AnimationMixer) => { [key: string]: () => void }
-}
-
 export interface IAnimationData {
   animationKeyframes: () => IKeyframeMap;
   playAnimation: (mixer: THREE.AnimationMixer, states: string[], times: number[]) => void
@@ -67,7 +60,6 @@ export interface IKeyframeMap {
 
 export interface IInteraction {
   blueprint: IAnimationMap;
-  startFrom: string;
   animations: IAnimationData;
   dialogue: IDialogue | null
 }

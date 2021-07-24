@@ -1,5 +1,7 @@
-import { IKeyframeMap } from "@types";
+import { IAnimationMap, IKeyframeMap } from "@types";
 import * as THREE from "three";
+
+const initialState = (blueprint: IAnimationMap) => Object.keys(blueprint)[0];
 
 const getKeyframeTracks = (states: string[], times: number[], animationKeyframes: () => IKeyframeMap) => {
   // todo- if states.length and times.length differ, still do it with necessary adjustments but console.warn
@@ -74,5 +76,6 @@ const getAnimationData = (animationKeyframes: () => IKeyframeMap) => {
 }
 
 export {
+  initialState,
   getAnimationData
 }

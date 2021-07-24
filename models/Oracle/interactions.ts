@@ -1,6 +1,6 @@
-import { IInteractionDef, IKeyframeMap } from "@types";
 import * as THREE from "three";
-import * as utils from "./_utils";
+import { IInteraction, IInteractionDef, IKeyframeMap } from "@types";
+import { getAnimationData } from "@utils";
 
 const blueprint: {
   [start: string]: IInteractionDef
@@ -26,8 +26,6 @@ const blueprint: {
     times: [2]
   }
 }
-
-const startFrom = Object.keys(blueprint)[0];
 
 const dialogue = (
   scene: THREE.Scene,
@@ -95,11 +93,8 @@ const animationKeyframes = (): IKeyframeMap => {
   }
 }
 
-const animations = utils.getAnimationData(animationKeyframes);
-
-export {
+export const interactions: IInteraction = {
   blueprint,
-  startFrom,
-  animations,
+  animations: getAnimationData(animationKeyframes),
   dialogue
 }

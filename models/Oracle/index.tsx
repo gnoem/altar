@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from "react";
 import * as THREE from "three";
 import { useGLTF, useInteraction } from "@hooks";
-import { interactions } from "@lib";
+import { interactions } from "./interactions";
 import { ILoadedObject } from "@types";
-import { castModel, loadObject } from "@utils";
+import { transformObject, initialState, loadObject } from "@utils";
 
 const Head: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
   const [model, setModel] = useState<any>(null);
   const object = useGLTF('gltf/oracle.glb');
 
-  const interactionName = 'oracle';
-  const interaction = interactions[interactionName];
-  const { startFrom, animations } = interaction;
-  const { interact } = useInteraction(model, sceneComponents, interaction);
+  const { blueprint, animations } = interactions;
+  const { interact } = useInteraction(model, sceneComponents, interactions);
 
   useEffect(() => {
     if (!object || model) return;
@@ -22,9 +20,9 @@ const Head: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
         obj.receiveShadow = true;
       }
     });
-    const initial = animations.animationKeyframes()[startFrom];
-    castModel.position(object, initial.position);
-    castModel.rotation(object, initial.rotation);
+    const initialKeyframe = animations.animationKeyframes()[initialState(blueprint)];
+    transformObject.position(object, initialKeyframe.position);
+    transformObject.rotation(object, initialKeyframe.rotation);
     object.castShadow = true;
     object.name = 'oracle';
     object.userData.hoverCursor = 'pointer';

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import * as THREE from "three";
 import { IAnimationData, IDialogue, IInteraction, IInteractionDef, IThreeScene } from "@types";
-import { last } from "@utils";
+import { initialState, last } from "@utils";
 
 interface IInteract {
   state?: IInteractionDef | string;
@@ -11,14 +11,14 @@ interface IInteract {
 }
 
 const useInteraction = (
-  model: any,
+  object: any,
   sceneComponents: IThreeScene,
-  { blueprint, startFrom, animations, dialogue }: IInteraction
+  { blueprint, animations, dialogue }: IInteraction
 ): IInteract => {
   // todo add "history" - array of strings representing past states in order
   const [interacted, setInteracted] = useState<number | IInteractionDef | null>(null);
-  const [state, setState] = useState<IInteractionDef | string>(startFrom);
-  const { createMixer } = useAnimation(model, state, animations, startFrom);
+  const [state, setState] = useState<IInteractionDef | string>(initialState(blueprint));
+  const { createMixer } = useAnimation(object, state, animations, initialState(blueprint));
 
   const interact = (customState?: IInteractionDef) => {
     setInteracted(customState ?? Date.now());
@@ -31,7 +31,7 @@ const useInteraction = (
   }
 
   useEffect(() => {
-    if (!model) return;
+    if (!object) return;
     if (!interacted) return createMixer();
     // can either follow blueprint via interact()...
     if (typeof interacted === 'number') {
@@ -60,13 +60,13 @@ const useInteraction = (
 }
 
 const useAnimation = (
-  model: any,
+  object: any,
   state: IInteractionDef | string,
   { animationKeyframes, playAnimation }: IAnimationData,
-  startFrom: string
+  initialAnimationState: string
 ): { createMixer: () => void } => {
   const [mixer, setMixer] = useState<THREE.AnimationMixer | null>(null);
-  const [prevAnimation, setPrevAnimation] = useState<string>(startFrom);
+  const [prevAnimation, setPrevAnimation] = useState<string>(initialAnimationState);
 
   useEffect(() => {
     if (!mixer || typeof state === 'string') return;
@@ -74,13 +74,13 @@ const useAnimation = (
     if (prevAnimation === last(state.steps)) return;
     playAnimation(mixer, [prevAnimation, ...state.steps], [0, ...state.times]);
     setPrevAnimation(last(state.steps));
-    if (model) {
-      model.userData.tick = (delta: number) => mixer.update(delta);
+    if (object) {
+      object.userData.tick = (delta: number) => mixer.update(delta);
     }
   }, [state, mixer]);
 
   const createMixer = () => {
-    const newMixer = new THREE.AnimationMixer(model);
+    const newMixer = new THREE.AnimationMixer(object);
     setMixer(newMixer);
   }
 

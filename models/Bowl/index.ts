@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import * as THREE from "three";
 import { useGLTF } from "@hooks";
 import { ILoadedObject, ILoadTextureInput } from "@types";
-import { castModel, loadObject, defineMaterial } from "@utils";
+import { transformObject, loadObject, defineMaterial } from "@utils";
 
 const getTextureData = (): ILoadTextureInput => {
   const textures = {
@@ -39,11 +39,6 @@ const Bowl: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
   });
   const object = useGLTF('gltf/bowl.glb');
 
-  /* const interactionName = 'tusks';
-  const interaction = interactions[interactionName];
-  const { startFrom, animations } = interaction;
-  const { interact } = useInteraction(model, sceneComponents, interaction); */
-
   useEffect(() => {
     if (!object || model) return;
     object.doubleSided = true;
@@ -53,14 +48,8 @@ const Bowl: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
         //obj.receiveShadow = true;
       }
     });
-    //const initial = animations.animationKeyframes()[startFrom];
-    castModel.position(object, [0, -3, 5]);
-    castModel.rotation(object, [0, 0, 0]);
-    object.name = 'tusks';
-    object.userData.hoverCursor = 'pointer'; // remove after first interaction?
-    object.userData.events = {
-      //click: interact
-    }
+    transformObject.position(object, [0, -3, 5]);
+    transformObject.rotation(object, [0, 0, 0]);
     loadObject(object, sceneComponents, setLoaded);
     setModel(object);
   }, [object, model]);

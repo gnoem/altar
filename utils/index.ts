@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { ILoadTextureInput, ISimpleObject, ITextureMap, IThreeScene, ThreeMaterial } from "@types";
-import { useEffect, useState } from "react";
+export { initialState, getAnimationData } from "./interactions";
+export { createMaterialFromTextures, defineMaterial } from "./materials";
 
 export const mutateStateArray = (update: ((array: any[]) => void) | null) => (prevArray: React.SetStateAction<any>) => {
   const arrayToReturn = [...prevArray];
@@ -8,7 +9,7 @@ export const mutateStateArray = (update: ((array: any[]) => void) | null) => (pr
   return arrayToReturn;
 }
 
-export const last = (array: any[]) => {
+export const last = (array: any[]): any => {
   return array[array.length - 1];
 }
 
@@ -18,22 +19,13 @@ export const randomNumberBetween = (min: number, max: number, decimalPlaces: num
   return Math.round(randomDecimal * roundingFactor) / roundingFactor;
 }
 
-export const setModelPosition = (model: any, [x, y, z]: number[]): void => {
-  Object.assign(model.position, { x, y, z });
-}
-
-export const setModelRotation = (model: THREE.Mesh, [x, y, z]: number[]) => {
-  const euler = new THREE.Euler(...[x, y, z]);
-  model.setRotationFromEuler(euler);
-}
-
-export const castModel: {
+export const transformObject: {
   [property: string]: (model: any, [x, y, z]: number[]) => void
 } = {
   position: (model: any, [x, y, z]: number[]): void => {
     Object.assign(model.position, { x, y, z });
   },
-  rotation: (model: any, [x, y, z]: number[]) => {
+  rotation: (model: any, [x, y, z]: number[]): void => {
     const euler = new THREE.Euler(...[x, y, z]);
     model.setRotationFromEuler(euler);
   },
@@ -53,37 +45,4 @@ export const loadObject = (
   scene.add(model);
   loop.add(model);
   setLoaded(true);
-}
-
-export const loadMaterialFromTextures = ({ textures, createMaterial }: ILoadTextureInput): ThreeMaterial => {
-
-  let material: ThreeMaterial;
-
-  const texturesArray = Object.entries(textures);
-  const textureLoader = new THREE.TextureLoader();
-
-  const getLoadedTextures = () => {
-    const loadedTextures = texturesArray.reduce((obj: any, [map, path]: any): any => {
-      const texture = textureLoader.load(path, (texture: THREE.Texture) => {
-        texture.name = map;
-        texture.encoding = THREE.sRGBEncoding;
-        texture.flipY = false;
-      });
-      obj[map] = texture;
-      return obj;
-    }, {});
-    return loadedTextures;
-  }
-
-  const loadedTextures = getLoadedTextures();
-  material = createMaterial(loadedTextures);
-
-  return material;
-}
-
-export const defineMaterial = (Material: any, params: ISimpleObject) => (textures: ITextureMap) => {
-  return new Material({
-    ...textures,
-    ...params
-  });
 }

@@ -7,7 +7,6 @@ import {
   RoughnessMipmapper
 } from "./three";
 
-export * as interactions from "./interactions";
 export * as materials from "./materials";
 export * as objects from "./objects";
 

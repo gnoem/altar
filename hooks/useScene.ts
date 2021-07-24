@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import * as THREE from "three";
 import { Loop, OrbitControls, RGBELoader, RoughnessMipmapper, objects } from "@lib";
 import { IThreeScene } from "@types";
-import { castModel, mutateStateArray } from "@utils";
+import { transformObject, mutateStateArray } from "@utils";
 
 const { Water } = objects;
 
@@ -93,8 +93,8 @@ const addLighting = (scene: THREE.Scene): void => {
   const ambientLight = new THREE.AmbientLight( 0xffffff, 0.3 );
   const primaryLight = new THREE.DirectionalLight( 0xffffff, 1 );
   const secondaryLight = new THREE.DirectionalLight( 0xffffff, 0.1 );
-  castModel.position(primaryLight, [50, 0, 0]);
-  castModel.position(secondaryLight, [-50, 0, 0]);
+  transformObject.position(primaryLight, [50, 0, 0]);
+  transformObject.position(secondaryLight, [-50, 0, 0]);
   primaryLight.shadow.bias = 0.001;
   primaryLight.shadow.normalBias = 0.003;
   scene.add( primaryLight );

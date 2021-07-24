@@ -1,24 +1,8 @@
 import React, { useState, useEffect } from "react";
 import * as THREE from "three";
-import { ILoadedObject, ILoadTextureInput } from "@types";
-import { castModel, loadObject, defineMaterial, loadMaterialFromTextures } from "@utils";
-
-const getTextureData = (): ILoadTextureInput => {
-  const textures = {
-    bumpMap: 'textures/ceres.png',
-    map: 'textures/vibrant.png',
-  }
-  
-  const createMaterial = defineMaterial(THREE.MeshPhongMaterial, {
-    bumpScale: 0.2,
-    color: 0xFFFFFF
-  });
-
-  return {
-    textures,
-    createMaterial
-  }
-}
+import { ILoadedObject } from "@types";
+import { transformObject, loadObject, createMaterialFromTextures } from "@utils";
+import { defineMoonMaterial } from "./textures";
 
 const Moon: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
   const [model, setModel] = useState<any>(null);
@@ -26,10 +10,10 @@ const Moon: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
   useEffect(() => {
     if (model) return;
     const geometry = new THREE.SphereGeometry(7, 64, 64);
-    const material = loadMaterialFromTextures(getTextureData());
+    const material = createMaterialFromTextures(defineMoonMaterial());
     const moon = new THREE.Mesh(geometry, material);
-    castModel.position(moon, [0, 70, 200]);
-    castModel.scale(moon, [7, 7, 7]);
+    transformObject.position(moon, [0, 70, 200]);
+    transformObject.scale(moon, [7, 7, 7]);
     moon.userData.tick = (delta: number) => {
       moon.rotation.y += (delta * 0.07);
     }

@@ -78,7 +78,7 @@ export interface ILoadTextureInput {
   createMaterial: (textures: ITextureMap) => any
 }
 
-// advanced mesh config for loading GLTFs
+// advanced mesh config for loading multi-mesh GLTFs
 
 export interface IMeshConfig {
   name?: string;
@@ -89,4 +89,20 @@ export interface IMeshConfig {
       click: () => void;
     }
   }
+}
+
+export interface IMeshProps {
+  name: string;
+  mesh: THREE.Mesh;
+  config?: (object: THREE.Mesh) => void;
+}
+
+export interface IMeshesObject {
+  [name: string]: THREE.Mesh;
+}
+
+export type IMeshConfigFunction = (object?: THREE.Mesh) => IMeshConfig;
+
+export interface IMeshConfigObject {
+  [meshName: string]: IMeshConfigFunction
 }

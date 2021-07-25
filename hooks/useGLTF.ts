@@ -1,13 +1,6 @@
 /* eslint-disable global-require */
 import { useEffect, useState } from "react";
-import * as THREE from "three";
-import { IMeshConfig } from "@types";
-
-type IMeshConfigFunction = (object?: THREE.Mesh) => IMeshConfig;
-
-interface IMeshConfigObject {
-  [meshName: string]: IMeshConfigFunction
-}
+import { IMeshConfigFunction, IMeshConfigObject } from "@types";
 
 const useGLTF = (filePath: string, config?: IMeshConfigObject): any => {
   const [object, setObject] = useState(null);
@@ -31,7 +24,7 @@ const useGLTF = (filePath: string, config?: IMeshConfigObject): any => {
       });
     }
     renderObject();
-  }, [object, config]);
+  }, [object]);
 
   return object;
 }

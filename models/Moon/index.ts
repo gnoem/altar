@@ -5,12 +5,12 @@ import { defineMoonMaterial } from "./textures";
 import { useAddObject } from "@hooks";
 
 const geometry = new THREE.SphereGeometry(7, 64, 64);
-const material = createMaterialFromTextures(defineMoonMaterial());
-const moon = new THREE.Mesh(geometry, material);
+const moon = new THREE.Mesh(geometry);
 
 const Moon: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
 
   useAddObject(moon, sceneComponents, setLoaded, (object: any) => {
+    object.material = createMaterialFromTextures(defineMoonMaterial());
     transformObject.position(object, [0, 70, 200]);
     transformObject.scale(object, [7, 7, 7]);
     object.userData.tick = (delta: number) => {

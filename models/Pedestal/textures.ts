@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { ILoadTextureInput, IMeshConfig } from "@types";
 import { defineMaterial, createMaterialFromTextures } from "@utils";
 
-const defineTusksMaterial = (): ILoadTextureInput => {
+export const defineTusksMaterial = (): ILoadTextureInput => {
   const textures = {
     'bumpMap': 'textures/bone2.png'
   }
@@ -23,13 +23,6 @@ const defineTusksMaterial = (): ILoadTextureInput => {
 export const tusksConfig = () => (object: any): IMeshConfig => {
   return {
     name: 'tusks',
-    material: createMaterialFromTextures(defineTusksMaterial()),
-    userData: {
-      events: {
-        click: () => {
-          console.log(object);
-        }
-      }
-    }
+    material: createMaterialFromTextures(defineTusksMaterial())
   }
 }

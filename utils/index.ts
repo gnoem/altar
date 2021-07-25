@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { ILoadTextureInput, ISimpleObject, ITextureMap, IThreeScene, ThreeMaterial } from "@types";
-export { initialState, getAnimationData } from "./interactions";
+export { getInitialState, getAnimationData } from "./interactions";
 export { createMaterialFromTextures, defineMaterial } from "./materials";
 
 export const mutateStateArray = (update: ((array: any[]) => void) | null) => (prevArray: React.SetStateAction<any>) => {

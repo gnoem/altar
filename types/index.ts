@@ -81,10 +81,11 @@ export interface ILoadTextureInput {
 // advanced mesh config for loading GLTFs
 
 export interface IMeshConfig {
+  name?: string;
   material: ThreeMaterial | 'loading',
-  userData: {
-    hoverCursor: string;
-    events: {
+  userData?: {
+    hoverCursor?: string;
+    events?: {
       click: () => void;
     }
   }

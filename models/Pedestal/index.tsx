@@ -1,25 +1,30 @@
-import React, { useState } from "react";
 import { useAddObject, useGLTF, useInteraction } from "@hooks";
 import { ILoadedObject } from "@types";
-import { transformObject, initialState } from "@utils";
+import { transformObject, getInitialState } from "@utils";
 import { interactions } from "./interactions";
 import { tusksConfig } from "./textures";
 
 const Pedestal: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
-  const [model, setModel] = useState<any>(null);
-  
-  const { blueprint, animations } = interactions;
-  const { interact } = useInteraction(model, sceneComponents, interactions);
-
   const object = useGLTF('gltf/pedestal.glb', {
-    'tusks': tusksConfig({ interact })
+    'tusks': tusksConfig()
   });
 
+  const { blueprint, animations } = interactions;
+  const { interact } = useInteraction(object, sceneComponents, interactions);
+
   useAddObject(object, sceneComponents, setLoaded, (object: any) => {
-    const initialKeyframe = animations.animationKeyframes()[initialState(blueprint)];
+    const initialKeyframe = animations.animationKeyframes()[getInitialState(blueprint)];
     transformObject.position(object, initialKeyframe.position);
     transformObject.rotation(object, initialKeyframe.rotation);
-    setModel(object);
+    object.userData.hoverCursor = 'pointer';
+    object.userData.events = {
+      click: () => {
+        interact?.();
+        if (object?.userData?.hoverCursor) {
+          object.userData.hoverCursor = '';
+        }
+      }
+    }
   });
 
   return null;

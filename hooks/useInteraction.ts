@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import * as THREE from "three";
 import { IAnimationData, IDialogue, IInteraction, IInteractionDef, IThreeScene } from "@types";
-import { initialState, last } from "@utils";
+import { getInitialState, last } from "@utils";
 
 interface IInteract {
   state?: IInteractionDef | string;
@@ -17,8 +17,8 @@ const useInteraction = (
 ): IInteract => {
   // todo add "history" - array of strings representing past states in order
   const [interacted, setInteracted] = useState<number | IInteractionDef | null>(null);
-  const [state, setState] = useState<IInteractionDef | string>(initialState(blueprint));
-  const { createMixer } = useAnimation(object, state, animations, initialState(blueprint));
+  const [state, setState] = useState<IInteractionDef | string>(getInitialState(blueprint));
+  const { createMixer } = useAnimation(object, state, animations, getInitialState(blueprint));
 
   const interact = (customState?: IInteractionDef) => {
     setInteracted(customState ?? Date.now());

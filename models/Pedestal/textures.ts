@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { ILoadTextureInput, ISimpleObject } from "@types";
+import { ILoadTextureInput, IMeshConfig } from "@types";
 import { defineMaterial, createMaterialFromTextures } from "@utils";
 
 const defineTusksMaterial = (): ILoadTextureInput => {
@@ -20,21 +20,16 @@ const defineTusksMaterial = (): ILoadTextureInput => {
   }
 }
 
-export const tusksConfig = ({ interact }: ISimpleObject) => (object?: THREE.Mesh) => {
-  const events = {
-    click: () => {
-      interact?.();
-      if (object?.userData?.hoverCursor) {
-        object.userData.hoverCursor = '';
-      }
-    }
-  }
+export const tusksConfig = () => (object: any): IMeshConfig => {
   return {
     name: 'tusks',
     material: createMaterialFromTextures(defineTusksMaterial()),
     userData: {
-      hoverCursor: 'pointer',
-      events
+      events: {
+        click: () => {
+          console.log(object);
+        }
+      }
     }
   }
 }

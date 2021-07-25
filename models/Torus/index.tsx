@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { materials } from "@lib";
 import { ILoadedObject } from "@types";
-import { transformObject, initialState } from "@utils";
+import { transformObject, getInitialState } from "@utils";
 import { useAddObject, useInteraction } from "@hooks";
 import { interactions } from "../Oracle/interactions";
 
@@ -17,7 +17,7 @@ const Torus: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
   const { interact } = useInteraction(torus, sceneComponents, interactions);
   
   useAddObject(torus, sceneComponents, setLoaded, (object: any) => {
-    const initial = animations.animationKeyframes()[initialState(blueprint)];
+    const initial = animations.animationKeyframes()[getInitialState(blueprint)];
     transformObject.position(object, initial.position);
     transformObject.rotation(object, initial.rotation);
     transformObject.scale(object, initial.scale);

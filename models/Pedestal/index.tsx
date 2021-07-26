@@ -1,13 +1,19 @@
+import { useState } from "react";
 import { useAddObject, useGLTF, useInteraction } from "@hooks";
-import { ILoadedObject } from "@types";
-import { transformObject, getInitialState } from "@utils";
+import { ILoadedObject, IMeshesObject, IMeshComponentProps } from "@types";
+import { transformObject, getInitialState, createMeshComponent, meshRegistration } from "@utils";
+import { Tusks } from "./components";
 import { interactions } from "./interactions";
-import { tusksConfig } from "./textures";
+
+const components: { [name: string]: React.FC<IMeshComponentProps> } = {
+  tusks: Tusks
+}
 
 const Pedestal: React.FC<ILoadedObject> = ({ name, sceneComponents }) => {
-  const object = useGLTF('gltf/pedestal.glb', {
-    'tusks': tusksConfig()
-  });
+  const [meshes, setMeshes] = useState<IMeshesObject>({});
+  const names = Object.keys(components);
+
+  const object = useGLTF('gltf/pedestal.glb', meshRegistration(names, setMeshes));
 
   const { blueprint, animations } = interactions;
   const { interact } = useInteraction(object, sceneComponents, interactions);
@@ -17,6 +23,9 @@ const Pedestal: React.FC<ILoadedObject> = ({ name, sceneComponents }) => {
     transformObject.position(object, initialKeyframe.position);
     transformObject.rotation(object, initialKeyframe.rotation);
     object.name = name;
+  });
+
+  const config = (object: THREE.Mesh) => {
     object.userData.hoverCursor = 'pointer';
     object.userData.events = {
       click: () => {
@@ -26,9 +35,14 @@ const Pedestal: React.FC<ILoadedObject> = ({ name, sceneComponents }) => {
         }
       }
     }
-  });
+  }
 
-  return null;
+  if (!object) return null;
+  return (
+    <>
+      {names.map(createMeshComponent(config, { meshes, components }))}
+    </>
+  )
 }
 
 export default Pedestal;

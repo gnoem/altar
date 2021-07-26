@@ -62,7 +62,7 @@ export interface IKeyframeMap {
 export interface IInteraction {
   blueprint: IAnimationMap;
   animations: IAnimationData;
-  dialogue: IDialogue | null
+  dialogue: IDialogue | null;
 }
 
 
@@ -71,39 +71,42 @@ export interface IInteraction {
 export type ThreeMaterial = THREE.MeshBasicMaterial | THREE.MeshPhysicalMaterial | THREE.MeshPhongMaterial;
 
 export interface ITextureMap {
-  [mapName: string]: string
+  [mapName: string]: string;
 }
 
 export interface ILoadTextureInput {
-  textures: ITextureMap,
-  createMaterial: (textures: ITextureMap) => any
+  textures: ITextureMap;
+  createMaterial: (textures: ITextureMap) => any;
 }
 
 // advanced mesh config for loading multi-mesh GLTFs
 
 export interface IMeshConfig {
   name?: string;
-  material: ThreeMaterial | 'loading',
+  material?: ThreeMaterial | 'loading',
   userData?: {
     hoverCursor?: string;
     events?: {
-      click: () => void;
+      click?: () => void;
     }
   }
 }
 
-export interface IMeshProps {
+export interface IMeshComponentProps {
   name: string;
   mesh: THREE.Mesh;
-  config?: (object: THREE.Mesh) => void;
 }
 
 export interface IMeshesObject {
   [name: string]: THREE.Mesh;
 }
 
-export type IMeshConfigFunction = (object?: THREE.Mesh) => IMeshConfig;
+export interface IMeshComponentsObject {
+  [name: string]: React.FC<IMeshComponentProps>
+}
 
-export interface IMeshConfigObject {
-  [meshName: string]: IMeshConfigFunction
+export type IMeshRegistrationFunction = (object: THREE.Mesh) => void;
+
+export interface IMeshRegistrationObject {
+  [meshName: string]: IMeshRegistrationFunction
 }

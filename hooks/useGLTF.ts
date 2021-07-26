@@ -1,29 +1,28 @@
 /* eslint-disable global-require */
 import { useEffect, useState } from "react";
-import { IMeshConfigFunction, IMeshConfigObject } from "@types";
+import { IMeshRegistrationObject } from "@types";
 
-const useGLTF = (filePath: string, config?: IMeshConfigObject): any => {
+const useGLTF = (filePath: string, meshRegistration?: IMeshRegistrationObject): any => {
   const [object, setObject] = useState(null);
   
   useEffect(() => {
-    const materialsStillLoading = config && Object.values(config).some((mesh: IMeshConfigFunction) => mesh().material === 'loading');
-    if (object || materialsStillLoading) return;
-    const renderObject = () => {
+    if (object) return; // don't want this to run again if glTF has already been loaded
+    const loadObject = () => {
       const { GLTFLoader } = require('three/examples/jsm/loaders/GLTFLoader.js');
       const loader = new GLTFLoader();
       loader.load(filePath, (gltf: any) => {
         console.log(`loaded model at ${filePath}`);
-        if (config) {
+        if (meshRegistration) {
           gltf.scene.traverse((child: any) => {
-            if ((child.type === 'Mesh') && config[child.name]) {
-              Object.assign(child, config[child.name](child));
+            if ((child.type === 'Mesh') && meshRegistration[child.name]) {
+              meshRegistration[child.name](child);
             }
           });
         }
         setObject(gltf.scene);
       });
     }
-    renderObject();
+    loadObject();
   }, [object]);
 
   return object;

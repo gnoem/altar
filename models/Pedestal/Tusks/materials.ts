@@ -1,6 +1,6 @@
 import * as THREE from "three";
-import { ILoadTextureInput, IMeshConfig } from "@types";
-import { defineMaterial, createMaterialFromTextures } from "@utils";
+import { ILoadTextureInput } from "@types";
+import { defineMaterial } from "@utils";
 
 export const defineTusksMaterial = (): ILoadTextureInput => {
   const textures = {
@@ -17,12 +17,5 @@ export const defineTusksMaterial = (): ILoadTextureInput => {
   return {
     textures,
     createMaterial
-  }
-}
-
-export const tusksConfig = () => (object: any): IMeshConfig => {
-  return {
-    name: 'tusks',
-    material: createMaterialFromTextures(defineTusksMaterial())
   }
 }

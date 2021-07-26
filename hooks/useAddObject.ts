@@ -5,17 +5,19 @@ import { IThreeScene } from "@types";
 const useAddObject = (
   object: any,
   { scene, loop }: IThreeScene,
-  config: (object: any) => void
+  configObject: (object: any) => void,
+  configChildMeshes?: (object: any) => void
 ): void => {
   const [added, setAdded] = useState<boolean>(false);
 
   useEffect(() => {
     if (!(object && scene && loop) || added) return;
-    config(object);
+    configObject(object);
     object.traverse((obj: any) => {
       if (obj instanceof THREE.Mesh) {
         obj.castShadow = true;
         obj.receiveShadow = true;
+        configChildMeshes?.(obj);
       }
     });
     scene.add(object);

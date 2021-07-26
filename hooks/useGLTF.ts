@@ -2,7 +2,10 @@
 import { useEffect, useState } from "react";
 import { IMeshRegistrationObject } from "@types";
 
-const useGLTF = (filePath: string, meshRegistration?: IMeshRegistrationObject): any => {
+const useGLTF = (
+  filePath: string,
+  meshRegistration?: IMeshRegistrationObject
+): any => {
   const [object, setObject] = useState(null);
   
   useEffect(() => {
@@ -14,8 +17,8 @@ const useGLTF = (filePath: string, meshRegistration?: IMeshRegistrationObject): 
         console.log(`loaded model at ${filePath}`);
         if (meshRegistration) {
           gltf.scene.traverse((child: any) => {
-            if ((child.type === 'Mesh') && meshRegistration[child.name]) {
-              meshRegistration[child.name](child);
+            if (child.type === 'Mesh') {
+              meshRegistration[child.name]?.(child);
             }
           });
         }

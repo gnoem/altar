@@ -18,14 +18,14 @@ const Pedestal: React.FC<ILoadedObject> = ({ name, sceneComponents }) => {
   const { blueprint, animations } = interactions;
   const { interact } = useInteraction(object, sceneComponents, interactions);
 
-  useAddObject(object, sceneComponents, (object: any) => {
+  const configObject = (object: any): void => {
     const initialKeyframe = animations.animationKeyframes()[getInitialState(blueprint)];
     transformObject.position(object, initialKeyframe.position);
     transformObject.rotation(object, initialKeyframe.rotation);
     object.name = name;
-  });
+  }
 
-  const config = (object: THREE.Mesh) => {
+  const configChildMeshes = (object: THREE.Mesh): void => {
     object.userData.hoverCursor = 'pointer';
     object.userData.events = {
       click: () => {
@@ -37,12 +37,11 @@ const Pedestal: React.FC<ILoadedObject> = ({ name, sceneComponents }) => {
     }
   }
 
-  if (!object) return null;
-  return (
-    <>
-      {names.map(createMeshComponent(config, { meshes, components }))}
-    </>
-  )
+  useAddObject(object, sceneComponents, configObject, configChildMeshes);
+
+  return object
+    ? <>{names.map(createMeshComponent({ meshes, components }))}</>
+    : null;
 }
 
 export default Pedestal;

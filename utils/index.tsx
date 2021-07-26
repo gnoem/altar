@@ -72,14 +72,15 @@ export const meshRegistration = (
   }, {});
 }
 
-export const createMeshComponent = (
-  config: (object: THREE.Mesh) => void,
-  { meshes, components }: { meshes: IMeshesObject, components: IMeshComponentsObject }
-) => {
+interface ICreateMeshComponentParams {
+  meshes: IMeshesObject;
+  components: IMeshComponentsObject;
+}
+
+export const createMeshComponent = ({ meshes, components }: ICreateMeshComponentParams) => {
   return (meshName: string): JSX.Element => {
     const Component: React.FC<IMeshComponentProps> = components[meshName];
     const mesh: THREE.Mesh = meshes[meshName];
-    config(mesh);
     return <Component {...{
       key: meshName,
       name: meshName,

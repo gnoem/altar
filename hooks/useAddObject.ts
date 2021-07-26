@@ -5,24 +5,22 @@ import { IThreeScene } from "@types";
 const useAddObject = (
   object: any,
   { scene, loop }: IThreeScene,
-  setLoaded: any,
   config: (object: any) => void
 ): void => {
   const [added, setAdded] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!object || added) return;
-    if (!(scene && loop)) return;
+    if (!(object && scene && loop) || added) return;
+    config(object);
     object.traverse((obj: any) => {
       if (obj instanceof THREE.Mesh) {
         obj.castShadow = true;
         obj.receiveShadow = true;
       }
     });
-    config(object);
     scene.add(object);
     loop.add(object);
-    setLoaded(true);
+    scene.userData.setLoaded(object.name);
     setAdded(true);
   }, [object, added]);
 }

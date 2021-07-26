@@ -11,16 +11,17 @@ const geometry = new THREE.TorusGeometry(1, 0.5, 64, 64);
 const material = new THREE.ShaderMaterial(materials.gradient('hotpink', 'yellow'));
 const torus = new THREE.Mesh(geometry, material);
 
-const Torus: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
+const Torus: React.FC<ILoadedObject> = ({ name, sceneComponents }) => {
 
   const { blueprint, animations } = interactions;
   const { interact } = useInteraction(torus, sceneComponents, interactions);
   
-  useAddObject(torus, sceneComponents, setLoaded, (object: any) => {
+  useAddObject(torus, sceneComponents, (object: any) => {
     const initial = animations.animationKeyframes()[getInitialState(blueprint)];
     transformObject.position(object, initial.position);
     transformObject.rotation(object, initial.rotation);
     transformObject.scale(object, initial.scale);
+    object.name = name;
     object.userData.hoverCursor = 'pointer';
     object.userData.events = {
       click: interact

@@ -3,14 +3,14 @@ import styles from "./Scene.module.css";
 import { Loader } from "@components";
 import { useMouseEvent, useScene } from "@hooks";
 import { Pedestal, Oracle, Torus, Moon } from "@models";
-import { IThreeScene } from "@types";
+import { ILoadedObject, IThreeScene } from "@types";
 import { mutateStateArray } from "@utils";
 import Bowl from "@models/Bowl";
+import { useVerifyLoaded } from "./hooks";
 
-interface ISceneObject {
+export interface ISceneObject {
   name: string;
   loaded: boolean;
-  setLoaded: (value: boolean) => void;
 }
 
 const objectsMap: {
@@ -23,67 +23,38 @@ const objectsMap: {
   'bowl': Bowl
 }
 
-const useVerifyLoaded = (objectNames: string[], sceneComponents: IThreeScene): {
-  loading: boolean,
-  objectsList: ISceneObject[] | null
-} => {
-  const [loading, setLoading] = useState<boolean>(true);
-  const [objectsList, setObjectsList] = useState<ISceneObject[] | null>(null);
-  useEffect(() => {
-    const array = objectNames.map((name: string): ISceneObject => ({
-      name,
-      loaded: false,
-      setLoaded: (value: boolean): void => {
-        setObjectsList(mutateStateArray((array) => {
-          const index = array.findIndex(obj => obj.name === name);
-          return array.splice(index, 1, {
-            name,
-            loaded: value
-          });
-        }));
-      }
-    }));
-    setObjectsList(array);
-  }, [objectNames]);
-  useEffect(() => {
-    if (!sceneComponents || !objectsList) return;
-    const isReady = objectsList.every(obj => obj.loaded);
-    const delay = 3000;
-    if (isReady) {
-      setTimeout(() => {
-        setLoading(false);
-      }, delay);
-    }
-  }, [sceneComponents, objectsList]);
-  return {
-    loading,
-    objectsList
-  }
-}
-
 const Scene: React.FC<{ objects: string[]; }> = ({ objects: objectNames }): JSX.Element => {
   const [sceneRef, createSceneRef] = useState<HTMLDivElement | null>(null);
+  const [ready, setReady] = useState<boolean>(false);
+  
   const sceneComponents: IThreeScene = useScene(sceneRef);
-  const { loading, objectsList } = useVerifyLoaded(objectNames, sceneComponents);
+  const { loading, setLoaded } = useVerifyLoaded(objectNames, sceneComponents);
   useMouseEvent(sceneComponents);
-  const includeElement = (objectName: string): JSX.Element | null => {
+  
+  useEffect(() => { // prepare scene before loading any objects
+    if (!sceneComponents?.scene) return;
+    sceneComponents.scene.userData.setLoaded = setLoaded; // make setLoaded function available to scene children
+    setReady(true);
+  }, [sceneComponents]);
+
+  const createObjects = (objectName: string): JSX.Element | null => {
     const { scene, camera, renderer } = sceneComponents;
-    if (!objectsList || !(scene && camera && renderer)) return null;
-    const shouldInclude = objectsList.some((object: ISceneObject): boolean => object.name === objectName);
-    const Element = objectsMap[objectName];
-    const object = (
+    if (!(scene && camera && renderer) || !ready) return null;
+    const Element: React.FC<ILoadedObject> = objectsMap[objectName];
+    const object: JSX.Element = (
       <Element {...{
         key: objectName,
-        sceneComponents,
-        setLoaded: objectsList!.find(object => object.name === objectName)!.setLoaded
+        name: objectName,
+        sceneComponents
       }} />
     )
-    return shouldInclude ? object : null;
+    return object;
   }
+
   return (
     <div ref={createSceneRef} className={`${styles.Scene} ${loading ? styles.loading : ''}`}>
       {loading && <Loader />}
-      {objectNames.map(includeElement)}
+      {objectNames.map(createObjects)}
     </div>
   )
 }

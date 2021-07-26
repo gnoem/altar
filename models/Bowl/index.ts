@@ -22,7 +22,7 @@ const getTextureData = (): ILoadTextureInput => {
   }
 }
 
-const Bowl: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
+const Bowl: React.FC<ILoadedObject> = ({ name, sceneComponents }) => {
   const [model, setModel] = useState<any>(null);
 
   const material = new THREE.MeshPhysicalMaterial({
@@ -48,9 +48,10 @@ const Bowl: React.FC<ILoadedObject> = ({ sceneComponents, setLoaded }) => {
         //obj.receiveShadow = true;
       }
     });
+    object.name = name;
     transformObject.position(object, [0, -3, 5]);
     transformObject.rotation(object, [0, 0, 0]);
-    loadObject(object, sceneComponents, setLoaded);
+    loadObject(object, sceneComponents);
     setModel(object);
   }, [object, model]);
 

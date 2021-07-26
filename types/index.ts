@@ -18,8 +18,9 @@ export interface IThreeScene {
 
 export interface ILoadedObject {
   key: string;
+  name: string;
   sceneComponents: IThreeScene;
-  setLoaded: (value: boolean) => void;
+  setLoaded?: (value: boolean) => void;
 }
 
 export interface IKeyframe {

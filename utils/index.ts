@@ -37,12 +37,12 @@ export const transformObject: {
 export const loadObject = (
   model: any,
   sceneComponents: IThreeScene,
-  setLoaded: (value: boolean) => void,
+  //setLoaded: (value: boolean) => void,
   //animation?: (model: any) => void
 ) => {
   const { scene, camera, renderer, loop } = sceneComponents;
   if (!(scene && camera && renderer && loop)) return;
   scene.add(model);
   loop.add(model);
-  setLoaded(true);
+  //setLoaded(true);
 }

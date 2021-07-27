@@ -1,19 +1,19 @@
 import { IThreeScene } from "@types";
 import { mutateStateArray } from "@utils";
 import { useEffect, useState } from "react";
-import { ISceneObject } from ".";
+import { ILoadedObject } from ".";
 
 export const useVerifyLoaded = (objectNames: string[], sceneComponents: IThreeScene): {
   loading: boolean;
   setLoaded: (objectName: string) => void;
 } => {
-  const loadedObjects = objectNames.map((name: string): ISceneObject => ({
+  const loadedObjects = objectNames.map((name: string): ILoadedObject => ({
     name,
     loaded: false
   }));
 
   const [loading, setLoading] = useState<boolean>(true);
-  const [objectsList, setObjectsList] = useState<ISceneObject[]>(loadedObjects);
+  const [objectsList, setObjectsList] = useState<ILoadedObject[]>(loadedObjects);
 
   const setLoaded = (objectName: string): void => {
     setObjectsList(mutateStateArray((array) => {

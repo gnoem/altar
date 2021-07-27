@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAddObject, useGLTF, useInteraction } from "@hooks";
-import { ILoadedObject, IMeshesObject, IMeshComponentProps } from "@types";
+import { IObjectComponentProps, IMeshesObject, IMeshComponentProps, SceneObject } from "@types";
 import { transformObject, getInitialState, createMeshComponent, meshRegistration } from "@utils";
 import { Tusks } from "./components";
 import { interactions } from "./interactions";
@@ -9,7 +9,7 @@ const components: { [name: string]: React.FC<IMeshComponentProps> } = {
   tusks: Tusks
 }
 
-const Pedestal: React.FC<ILoadedObject> = ({ name, sceneComponents }) => {
+const Pedestal: React.FC<IObjectComponentProps> = ({ name, sceneComponents }) => {
   const [meshes, setMeshes] = useState<IMeshesObject>({});
   const names = Object.keys(components);
 
@@ -18,7 +18,7 @@ const Pedestal: React.FC<ILoadedObject> = ({ name, sceneComponents }) => {
   const { blueprint, animations } = interactions;
   const { interact } = useInteraction(object, sceneComponents, interactions);
 
-  const configObject = (object: any): void => {
+  const configObject = (object: SceneObject): void => {
     const initialKeyframe = animations.animationKeyframes()[getInitialState(blueprint)];
     transformObject.position(object, initialKeyframe.position);
     transformObject.rotation(object, initialKeyframe.rotation);

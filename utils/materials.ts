@@ -1,33 +1,35 @@
 import * as THREE from "three";
-import { ILoadTextureInput, ISimpleObject, ITextureMap, ThreeMaterial } from "@types";
+import { ILoadTextureInput, ISimpleObject, ILoadedTextureMap, ThreeMaterial } from "@types";
+
+type MappedTexturePath = [string, string];
 
 export const createMaterialFromTextures = ({ textures, createMaterial }: ILoadTextureInput): ThreeMaterial => {
 
   let material: ThreeMaterial;
 
-  const texturesArray = Object.entries(textures);
+  const texturesArray: MappedTexturePath[] = Object.entries(textures);
   const textureLoader = new THREE.TextureLoader();
 
-  const getLoadedTextures = () => {
-    const loadedTextures = texturesArray.reduce((obj: any, [map, path]: any): any => {
-      const texture = textureLoader.load(path, (texture: THREE.Texture) => {
+  const getLoadedTextures = (): ILoadedTextureMap => {
+    return texturesArray.reduce((obj: ILoadedTextureMap, [map, path]: MappedTexturePath): ILoadedTextureMap => {
+      const texture = textureLoader.load(path, (texture: THREE.Texture): THREE.Texture => {
         texture.name = map;
         texture.encoding = THREE.sRGBEncoding;
         texture.flipY = false;
+        return texture;
       });
       obj[map] = texture;
       return obj;
     }, {});
-    return loadedTextures;
   }
 
-  const loadedTextures = getLoadedTextures();
+  const loadedTextures: ILoadedTextureMap = getLoadedTextures();
   material = createMaterial(loadedTextures);
 
   return material;
 }
 
-export const defineMaterial = (Material: any, params: ISimpleObject) => (textures: ITextureMap) => {
+export const defineMaterial = (Material: any, params: ISimpleObject) => (textures: ILoadedTextureMap) => {
   return new Material({
     ...textures,
     ...params

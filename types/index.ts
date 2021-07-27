@@ -2,11 +2,11 @@ import { Loop } from "@lib";
 import * as THREE from "three";
 
 export interface ISimpleObject {
-  [key: string]: any
+  [key: string]: any;
 }
 
 export interface IStringObject {
-  [key: string]: string
+  [key: string]: string;
 }
 
 export interface IThreeScene {
@@ -16,7 +16,13 @@ export interface IThreeScene {
   loop?: Loop | null;
 }
 
-export interface ILoadedObject {
+export type SceneObject = THREE.Group | THREE.Mesh;
+
+export type SceneElement = SceneObject | THREE.DirectionalLight;
+
+export type ThreeGroupChild = THREE.Object3D | THREE.Mesh;
+
+export interface IObjectComponentProps {
   key: string;
   name: string;
   sceneComponents: IThreeScene;
@@ -65,18 +71,21 @@ export interface IInteraction {
   dialogue: IDialogue | null;
 }
 
-
 // loading textures
 
 export type ThreeMaterial = THREE.MeshBasicMaterial | THREE.MeshPhysicalMaterial | THREE.MeshPhongMaterial;
 
-export interface ITextureMap {
+export interface ITexturePathMap {
   [mapName: string]: string;
 }
 
+export interface ILoadedTextureMap {
+  [mapName: string]: THREE.Texture;
+}
+
 export interface ILoadTextureInput {
-  textures: ITextureMap;
-  createMaterial: (textures: ITextureMap) => any;
+  textures: ITexturePathMap;
+  createMaterial: (textures: ILoadedTextureMap) => any;
 }
 
 // advanced mesh config for loading multi-mesh GLTFs

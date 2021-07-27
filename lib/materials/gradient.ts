@@ -1,6 +1,9 @@
 import * as THREE from "three";
 
-const gradient = (primary?: string, secondary?: string): any => {
+const gradient = (
+  primary?: string,
+  secondary?: string
+): Pick<THREE.ShaderMaterial, 'uniforms' | 'vertexShader' | 'fragmentShader'> => {
   return {
     uniforms: {
       color1: {

@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { materials } from "@lib";
-import { ILoadedObject } from "@types";
+import { IObjectComponentProps, SceneObject } from "@types";
 import { transformObject, getInitialState } from "@utils";
 import { useAddObject, useInteraction } from "@hooks";
 import { interactions } from "../Oracle/interactions";
@@ -11,12 +11,12 @@ const geometry = new THREE.TorusGeometry(1, 0.5, 64, 64);
 const material = new THREE.ShaderMaterial(materials.gradient('hotpink', 'yellow'));
 const torus = new THREE.Mesh(geometry, material);
 
-const Torus: React.FC<ILoadedObject> = ({ name, sceneComponents }) => {
+const Torus: React.FC<IObjectComponentProps> = ({ name, sceneComponents }) => {
 
   const { blueprint, animations } = interactions;
   const { interact } = useInteraction(torus, sceneComponents, interactions);
   
-  useAddObject(torus, sceneComponents, (object: any) => {
+  useAddObject(torus, sceneComponents, (object: SceneObject) => {
     const initial = animations.animationKeyframes()[getInitialState(blueprint)];
     transformObject.position(object, initial.position);
     transformObject.rotation(object, initial.rotation);

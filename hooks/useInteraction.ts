@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import * as THREE from "three";
-import { IAnimationData, IDialogue, IInteraction, IInteractionDef, IThreeScene } from "@types";
+import { IAnimationData, IDialogue, IInteraction, IInteractionDef, IThreeScene, SceneObject } from "@types";
 import { getInitialState, last } from "@utils";
 
 interface IInteract {
@@ -11,7 +11,7 @@ interface IInteract {
 }
 
 const useInteraction = (
-  object: any,
+  object: SceneObject | null,
   sceneComponents: IThreeScene,
   { blueprint, animations, dialogue }: IInteraction
 ): IInteract => {
@@ -60,7 +60,7 @@ const useInteraction = (
 }
 
 const useAnimation = (
-  object: any,
+  object: SceneObject | null,
   state: IInteractionDef | string,
   { animationKeyframes, playAnimation }: IAnimationData,
   initialAnimationState: string
@@ -80,6 +80,7 @@ const useAnimation = (
   }, [state, mixer]);
 
   const createMixer = () => {
+    if (!object) return;
     const newMixer = new THREE.AnimationMixer(object);
     setMixer(newMixer);
   }

@@ -1,3 +1,4 @@
+import { SceneObject } from "@types";
 import * as THREE from "three";
 
 const clock = new THREE.Clock();
@@ -6,7 +7,7 @@ class Loop {
   scene: THREE.Scene;
   camera: THREE.Camera;
   renderer: THREE.WebGLRenderer;
-  updatables: any[];
+  updatables: SceneObject[];
 
   constructor(scene: THREE.Scene, camera: THREE.Camera, renderer: THREE.WebGLRenderer) {
     this.camera = camera;
@@ -26,7 +27,7 @@ class Loop {
     this.renderer.setAnimationLoop(null);
   }
 
-  add(obj: any) {
+  add(obj: SceneObject) {
     this.updatables.push(obj);
   }
   

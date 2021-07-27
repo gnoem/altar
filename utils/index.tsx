@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { ILoadTextureInput, IMeshComponentsObject, IMeshRegistrationObject, IMeshesObject, ISimpleObject, ITextureMap, IThreeScene, ThreeMaterial, IMeshRegistrationFunction, IMeshComponentProps } from "@types";
+import { IMeshComponentsObject, IMeshRegistrationObject, IMeshesObject, ISimpleObject, IMeshRegistrationFunction, IMeshComponentProps, SceneElement } from "@types";
 import React, { Dispatch, SetStateAction } from "react";
 export { getInitialState, getAnimationData } from "./interactions";
 export { createMaterialFromTextures, defineMaterial } from "./materials";
@@ -21,33 +21,19 @@ export const randomNumberBetween = (min: number, max: number, decimalPlaces: num
 }
 
 export const transformObject: {
-  [property: string]: (model: any, [x, y, z]: number[]) => void
+  [property: string]: (model: SceneElement, [x, y, z]: number[]) => void
 } = {
-  position: (model: any, [x, y, z]: number[]): void => {
+  position: (model: SceneElement, [x, y, z]: number[]): void => {
     Object.assign(model.position, { x, y, z });
   },
-  rotation: (model: any, [x, y, z]: number[]): void => {
+  rotation: (model: SceneElement, [x, y, z]: number[]): void => {
     const euler = new THREE.Euler(...[x, y, z]);
     model.setRotationFromEuler(euler);
   },
-  scale: (model: any, [x, y, z]: number[]): void => {
+  scale: (model: SceneElement, [x, y, z]: number[]): void => {
     Object.assign(model.scale, { x, y, z });
   }
 }
-
-export const loadObject = (
-  model: any,
-  sceneComponents: IThreeScene,
-  //setLoaded: (value: boolean) => void,
-  //animation?: (model: any) => void
-) => {
-  const { scene, camera, renderer, loop } = sceneComponents;
-  if (!(scene && camera && renderer && loop)) return;
-  scene.add(model);
-  loop.add(model);
-  //setLoaded(true);
-}
-
 
 /* ADVANCED MULTI-MESH GLTF CONFIG
 if we have a GLTF composed of multiple objects/meshes, we may want to have fine-grained control over individual meshes, including letting each mesh have its own state and side effects and make use of custom hooks like useInteraction. to do so we can create a React component for each mesh, which takes the mesh object as a prop and manages its state, side effects, etc. working example: a multi-mesh GLTF BowlOfFruit with Bowl, Apple, Bananas, Peach as meshes

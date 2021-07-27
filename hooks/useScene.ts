@@ -106,9 +106,9 @@ const addEnvironmentTexture = (scene: THREE.Scene, camera: THREE.Camera, rendere
   const pmremGenerator = new THREE.PMREMGenerator( renderer );
   pmremGenerator.compileEquirectangularShader();
   new RGBELoader()
-    .setDataType( THREE.UnsignedByteType )
-    .setPath( 'textures/' )
-    .load( 'pinksunset.hdr', function ( texture: any ) {
+    .setDataType(THREE.UnsignedByteType)
+    .setPath('textures/')
+    .load('pinksunset.hdr', (texture: THREE.Texture): void => {
 
       const envMap = pmremGenerator.fromEquirectangular( texture ).texture;
 
@@ -121,10 +121,10 @@ const addEnvironmentTexture = (scene: THREE.Scene, camera: THREE.Camera, rendere
       renderer.render(scene, camera);
 
       // use of RoughnessMipmapper is optional
-      const roughnessMipmapper = new RoughnessMipmapper( renderer );
+      const roughnessMipmapper = new RoughnessMipmapper(renderer);
       roughnessMipmapper.dispose();
 
-    } );
+    });
 }
 
 const addWater = (scene: THREE.Scene) => {

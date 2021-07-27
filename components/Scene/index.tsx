@@ -2,19 +2,17 @@ import React, { useState, useEffect } from "react";
 import styles from "./Scene.module.css";
 import { Loader } from "@components";
 import { useMouseEvent, useScene } from "@hooks";
-import { Pedestal, Oracle, Torus, Moon } from "@models";
-import { ILoadedObject, IThreeScene } from "@types";
-import { mutateStateArray } from "@utils";
-import Bowl from "@models/Bowl";
+import { Pedestal, Oracle, Torus, Moon, Bowl } from "@models";
+import { IObjectComponentProps, IThreeScene } from "@types";
 import { useVerifyLoaded } from "./hooks";
 
-export interface ISceneObject {
+export interface ILoadedObject {
   name: string;
   loaded: boolean;
 }
 
 const objectsMap: {
-  [objectName: string]: any
+  [objectName: string]: React.FC<IObjectComponentProps>
 } = {
   'oracle': Oracle,
   'torus': Torus,
@@ -40,7 +38,7 @@ const Scene: React.FC<{ objects: string[]; }> = ({ objects: objectNames }): JSX.
   const createObjects = (objectName: string): JSX.Element | null => {
     const { scene, camera, renderer } = sceneComponents;
     if (!(scene && camera && renderer) || !ready) return null;
-    const Element: React.FC<ILoadedObject> = objectsMap[objectName];
+    const Element: React.FC<IObjectComponentProps> = objectsMap[objectName];
     const object: JSX.Element = (
       <Element {...{
         key: objectName,

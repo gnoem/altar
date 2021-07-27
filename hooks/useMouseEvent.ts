@@ -1,20 +1,20 @@
-import { IThreeScene } from "@types";
+import { IThreeScene, ThreeGroupChild } from "@types";
 import { useEffect } from "react";
 import * as THREE from "three";
 
-const getSceneObjects = (immediateChildren: any[]) => {
-  const getInnerChildren = (object: any) => {
-    const innerObjects: any[] = [];
-    object.forEach((child: any) => { // todo make recursive?
+const getSceneObjects = (immediateChildren: THREE.Object3D[]): THREE.Object3D[] => {
+  const getInnerChildren = (parents: THREE.Object3D[]): THREE.Object3D[] => {
+    const innerObjects: THREE.Object3D[][] = [];
+    parents.forEach((child: THREE.Object3D) => { // todo make recursive?
       if (child instanceof THREE.Group) {
         innerObjects.push(child.children);
       }
     });
-    return innerObjects;
+    return innerObjects.flat();
   }
   return [
     ...immediateChildren,
-    ...getInnerChildren(immediateChildren).flat()
+    ...getInnerChildren(immediateChildren)
   ]
 }
 
@@ -24,7 +24,7 @@ const useMouseEvent = (sceneComponents: IThreeScene, deps: string[] = []): void 
     if (!(scene && camera && renderer)) return;
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
-    const handleEvent = (e: any) => {
+    const handleEvent = (e: MouseEvent) => {
       e.preventDefault();
       mouse.x = (e.clientX / renderer.domElement.clientWidth) * 2 - 1;
       mouse.y = - (e.clientY / renderer.domElement.clientHeight) * 2 + 1;

@@ -1,28 +1,29 @@
 import { useEffect, useState } from "react";
 import * as THREE from "three";
-import { IThreeScene } from "@types";
+import { SceneObject, IThreeScene, ThreeGroupChild } from "@types";
 
 const useAddObject = (
-  object: any,
+  object: SceneObject | null,
   { scene, loop }: IThreeScene,
-  configObject: (object: any) => void,
-  configChildMeshes?: (object: any) => void
+  configObject: (object: SceneObject) => void,
+  configChildMeshes?: (object: THREE.Mesh) => void
 ): void => {
   const [added, setAdded] = useState<boolean>(false);
 
   useEffect(() => {
     if (!(object && scene && loop) || added) return;
     configObject(object);
-    object.traverse((obj: any) => {
-      if (obj instanceof THREE.Mesh) {
-        obj.castShadow = true;
-        obj.receiveShadow = true;
-        configChildMeshes?.(obj);
+    object.traverse((child: ThreeGroupChild) => {
+      if (child instanceof THREE.Mesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+        configChildMeshes?.(child);
       }
     });
     scene.add(object);
     loop.add(object);
     scene.userData.setLoaded(object.name);
+    console.log(object);
     setAdded(true);
   }, [object, added]);
 }

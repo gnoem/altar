@@ -1,15 +1,15 @@
 import { interactions } from "./interactions";
 import { useAddObject, useGLTF, useInteraction } from "@hooks";
-import { ILoadedObject } from "@types";
+import { IObjectComponentProps, SceneObject } from "@types";
 import { transformObject, getInitialState } from "@utils";
 
-const Oracle: React.FC<ILoadedObject> = ({ name, sceneComponents }) => {
+const Oracle: React.FC<IObjectComponentProps> = ({ name, sceneComponents }) => {
   const object = useGLTF('gltf/oracle.glb');
 
   const { blueprint, animations } = interactions;
   const { interact } = useInteraction(object, sceneComponents, interactions);
 
-  const configObject = (object: any): void => {
+  const configObject = (object: SceneObject): void => {
     const initialKeyframe = animations.animationKeyframes()[getInitialState(blueprint)];
     transformObject.position(object, initialKeyframe.position);
     transformObject.rotation(object, initialKeyframe.rotation);

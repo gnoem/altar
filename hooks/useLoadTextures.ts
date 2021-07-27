@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import * as THREE from "three";
-import { ILoadTextureInput, ITextureMap, ThreeMaterial } from "@types";
+import { ILoadTextureInput, ILoadedTextureMap, ThreeMaterial } from "@types";
 
 const useLoadTextures = ({ textures, createMaterial }: ILoadTextureInput): ThreeMaterial | 'loading' => {
-  const [loadedTextures, setLoadedTextures] = useState<ITextureMap | null>(null);
+  const [loadedTextures, setLoadedTextures] = useState<ILoadedTextureMap | null>(null);
   const [material, defineMaterial] = useState<ThreeMaterial | 'loading'>('loading');
 
   const texturesArray = Object.entries(textures);
@@ -12,10 +12,10 @@ const useLoadTextures = ({ textures, createMaterial }: ILoadTextureInput): Three
     if (!textures) return;
     const textureLoader = new THREE.TextureLoader();
     texturesArray.forEach(([map, path]) => {
-      textureLoader.load(path, (texture: any) => {
+      textureLoader.load(path, (texture: THREE.Texture) => {
         texture.encoding = THREE.sRGBEncoding;
         texture.flipY = false;
-        setLoadedTextures((prevState: any): ITextureMap => ({
+        setLoadedTextures((prevState: ILoadedTextureMap | null): ILoadedTextureMap => ({
           ...prevState,
           [map]: texture
         }));

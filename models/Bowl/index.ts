@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import * as THREE from "three";
-import { useGLTF } from "@hooks";
-import { ILoadedObject, ILoadTextureInput } from "@types";
-import { transformObject, loadObject, defineMaterial } from "@utils";
+import { useAddObject, useGLTF } from "@hooks";
+import { IObjectComponentProps, ILoadTextureInput, SceneObject } from "@types";
+import { transformObject, defineMaterial } from "@utils";
 
 const getTextureData = (): ILoadTextureInput => {
   const textures = {
@@ -22,8 +22,7 @@ const getTextureData = (): ILoadTextureInput => {
   }
 }
 
-const Bowl: React.FC<ILoadedObject> = ({ name, sceneComponents }) => {
-  const [model, setModel] = useState<any>(null);
+const Bowl: React.FC<IObjectComponentProps> = ({ name, sceneComponents }) => {
 
   const material = new THREE.MeshPhysicalMaterial({
     metalness: 0,
@@ -39,21 +38,13 @@ const Bowl: React.FC<ILoadedObject> = ({ name, sceneComponents }) => {
   });
   const object = useGLTF('gltf/bowl.glb');
 
-  useEffect(() => {
-    if (!object || model) return;
-    object.doubleSided = true;
-    object.traverse((obj: any) => {
-      if (obj instanceof THREE.Mesh) {
-        obj.castShadow = true;
-        //obj.receiveShadow = true;
-      }
-    });
-    object.name = name;
-    transformObject.position(object, [0, -3, 5]);
-    transformObject.rotation(object, [0, 0, 0]);
-    loadObject(object, sceneComponents);
-    setModel(object);
-  }, [object, model]);
+  useAddObject(object, sceneComponents, (object: SceneObject) => {
+    const obj = (object as THREE.Mesh);
+    obj.name = name;
+    obj.material = material;
+    transformObject.position(obj, [0, -3, 5]);
+    transformObject.rotation(obj, [0, 0, 0]);
+  });
 
   return null;
 }

@@ -9,6 +9,8 @@ export interface IStringObject {
   [key: string]: string;
 }
 
+// THREE scenes, objects
+
 export interface IThreeScene {
   scene: THREE.Scene | null;
   camera: THREE.Camera | null;
@@ -29,6 +31,8 @@ export interface IObjectComponentProps {
   setLoaded?: (value: boolean) => void;
 }
 
+// object interactions, animations
+
 export interface IKeyframe {
   [key: string]: number[]
 }
@@ -47,7 +51,7 @@ export interface IAnimationMap {
   [start: string]: IInteractionDef
 }
 
-export type IDialogue = (
+export type IInteractionEvents = (
   scene: THREE.Scene,
   next: () => void,
   castState: (state: IInteractionDef) => void
@@ -55,25 +59,25 @@ export type IDialogue = (
   [state: string]: () => void
 }
 
-export interface IRawKeyframe {
-  position: number[];
-  rotation: number[];
-  scale: number[];
-}
-
 export interface IKeyframeMap {
-  [name: string]: IRawKeyframe
+  [name: string]: {
+    position: number[];
+    rotation: number[];
+    scale: number[];
+  }
 }
 
 export interface IInteraction {
   blueprint: IAnimationMap;
   animations: IAnimationData;
-  dialogue: IDialogue | null;
+  dialogue: IInteractionEvents | null;
 }
 
-// loading textures
+// materials & textures
 
 export type ThreeMaterial = THREE.MeshBasicMaterial | THREE.MeshPhysicalMaterial | THREE.MeshPhongMaterial;
+
+export type MappedTexturePath = [string, string];
 
 export interface ITexturePathMap {
   [mapName: string]: string;

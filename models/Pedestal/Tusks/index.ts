@@ -3,7 +3,7 @@ import { IMeshComponentProps } from "@types";
 import { createMaterialFromTextures } from "@utils";
 import { defineTusksMaterial } from "./materials";
 
-const Tusks: React.FC<IMeshComponentProps> = ({ mesh, name }) => {
+const Tusks: React.FC<IMeshComponentProps> = ({ mesh, name }): null => {
 
   useEffect(() => {
     if (!mesh) return;

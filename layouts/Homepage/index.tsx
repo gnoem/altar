@@ -11,7 +11,7 @@ const Homepage: React.FC = ({ children }): JSX.Element => {
   )
 }
 
-const Header = () => {
+const Header = (): JSX.Element => {
   return (
     <Head>
       <title>GNAGUA W16V</title>

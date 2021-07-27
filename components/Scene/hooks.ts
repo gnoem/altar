@@ -16,7 +16,7 @@ export const useVerifyLoaded = (objectNames: string[], sceneComponents: IThreeSc
   const [objectsList, setObjectsList] = useState<ILoadedObject[]>(loadedObjects);
 
   const setLoaded = (objectName: string): void => {
-    setObjectsList(mutateStateArray((array) => {
+    setObjectsList(mutateStateArray((array: ILoadedObject[]): ILoadedObject[] => {
       const index = array.findIndex(obj => obj.name === objectName);
       return array.splice(index, 1, {
         name: objectName,

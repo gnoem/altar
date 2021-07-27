@@ -1,7 +1,5 @@
 import * as THREE from "three";
-import { ILoadTextureInput, ISimpleObject, ILoadedTextureMap, ThreeMaterial } from "@types";
-
-type MappedTexturePath = [string, string];
+import { ILoadTextureInput, ISimpleObject, ILoadedTextureMap, ThreeMaterial, MappedTexturePath } from "@types";
 
 export const createMaterialFromTextures = ({ textures, createMaterial }: ILoadTextureInput): ThreeMaterial => {
 
@@ -11,7 +9,10 @@ export const createMaterialFromTextures = ({ textures, createMaterial }: ILoadTe
   const textureLoader = new THREE.TextureLoader();
 
   const getLoadedTextures = (): ILoadedTextureMap => {
-    return texturesArray.reduce((obj: ILoadedTextureMap, [map, path]: MappedTexturePath): ILoadedTextureMap => {
+    return texturesArray.reduce((
+      obj: ILoadedTextureMap,
+      [map, path]: MappedTexturePath
+      ): ILoadedTextureMap => {
       const texture = textureLoader.load(path, (texture: THREE.Texture): THREE.Texture => {
         texture.name = map;
         texture.encoding = THREE.sRGBEncoding;

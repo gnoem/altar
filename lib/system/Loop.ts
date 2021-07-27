@@ -17,7 +17,7 @@ class Loop {
   }
 
   start() {
-    this.renderer.setAnimationLoop(() => {
+    this.renderer.setAnimationLoop((): void => {
       this.tick();
       this.renderer.render(this.scene, this.camera);
     });

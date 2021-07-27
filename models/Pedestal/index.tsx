@@ -9,7 +9,7 @@ const components: { [name: string]: React.FC<IMeshComponentProps> } = {
   tusks: Tusks
 }
 
-const Pedestal: React.FC<IObjectComponentProps> = ({ name, sceneComponents }) => {
+const Pedestal: React.FC<IObjectComponentProps> = ({ name, sceneComponents }): JSX.Element | null => {
   const [meshes, setMeshes] = useState<IMeshesObject>({});
   const names = Object.keys(components);
 
@@ -28,7 +28,7 @@ const Pedestal: React.FC<IObjectComponentProps> = ({ name, sceneComponents }) =>
   const configChildMeshes = (object: THREE.Mesh): void => {
     object.userData.hoverCursor = 'pointer';
     object.userData.events = {
-      click: () => {
+      click: (): void => {
         interact?.();
         if (object?.userData?.hoverCursor) {
           object.userData.hoverCursor = '';

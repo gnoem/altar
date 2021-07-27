@@ -22,7 +22,7 @@ const getTextureData = (): ILoadTextureInput => {
   }
 }
 
-const Bowl: React.FC<IObjectComponentProps> = ({ name, sceneComponents }) => {
+const Bowl: React.FC<IObjectComponentProps> = ({ name, sceneComponents }): null => {
 
   const material = new THREE.MeshPhysicalMaterial({
     metalness: 0,
@@ -38,7 +38,7 @@ const Bowl: React.FC<IObjectComponentProps> = ({ name, sceneComponents }) => {
   });
   const object = useGLTF('gltf/bowl.glb');
 
-  useAddObject(object, sceneComponents, (object: SceneObject) => {
+  useAddObject(object, sceneComponents, (object: SceneObject): void => {
     const obj = (object as THREE.Mesh);
     obj.name = name;
     obj.material = material;

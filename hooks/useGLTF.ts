@@ -12,13 +12,12 @@ const useGLTF = (
   
   useEffect(() => {
     if (object) return; // don't want this to run again if glTF has already been loaded
-    const loadObject = () => {
+    const loadObject = (): void => {
       const { GLTFLoader } = require('three/examples/jsm/loaders/GLTFLoader.js');
       const loader = new GLTFLoader();
-      loader.load(filePath, (gltf: GLTF) => {
-        console.log(`loaded model at ${filePath}`);
+      loader.load(filePath, (gltf: GLTF): void => {
         if (meshRegistration) {
-          gltf.scene.traverse((child: ThreeGroupChild) => {
+          gltf.scene.traverse((child: ThreeGroupChild): void => {
             if (child.type === 'Mesh') {
               meshRegistration[child.name]?.(child as THREE.Mesh);
             }

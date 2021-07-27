@@ -7,15 +7,15 @@ import { useAddObject } from "@hooks";
 const geometry = new THREE.SphereGeometry(7, 64, 64);
 const moon = new THREE.Mesh(geometry);
 
-const Moon: React.FC<IObjectComponentProps> = ({ name, sceneComponents }) => {
+const Moon: React.FC<IObjectComponentProps> = ({ name, sceneComponents }): null => {
 
-  useAddObject(moon, sceneComponents, (object: SceneObject) => {
+  useAddObject(moon, sceneComponents, (object: SceneObject): void => {
     const obj = (object as THREE.Mesh);
     obj.material = createMaterialFromTextures(defineMoonMaterial());
     transformObject.position(obj, [0, 70, 200]);
     transformObject.scale(obj, [7, 7, 7]);
     obj.name = name;
-    obj.userData.tick = (delta: number) => {
+    obj.userData.tick = (delta: number): void => {
       obj.rotation.y += (delta * 0.07);
     }
   });

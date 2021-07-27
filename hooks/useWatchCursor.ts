@@ -9,7 +9,7 @@ const useWatchCursor = (model: SceneObject, { scene, camera, renderer }: IThreeS
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
     const pointOfIntersection = new THREE.Vector3();
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMouseMove = (e: MouseEvent): void => {
       mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
       mouse.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
       raycaster.setFromCamera(mouse, camera);

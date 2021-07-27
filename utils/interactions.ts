@@ -1,5 +1,5 @@
-import { IAnimationData, IAnimationMap, IKeyframeMap, IRawKeyframe } from "@types";
 import * as THREE from "three";
+import { IAnimationData, IAnimationMap, IKeyframeMap } from "@types";
 
 interface IFullKeyframe {
   rotation: THREE.Quaternion;
@@ -60,7 +60,7 @@ const getKeyframeTracks = (
       scaleKF
     ]
   }
-  const keyframes: IFullKeyframe[] = states.map((state: string) => getKeyframe(state));
+  const keyframes: IFullKeyframe[] = states.map((state: string): IFullKeyframe => getKeyframe(state));
   return generateTracks(keyframes);
 }
 

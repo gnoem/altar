@@ -4,7 +4,7 @@ import React, { Dispatch, SetStateAction } from "react";
 export { getInitialState, getAnimationData } from "./interactions";
 export { createMaterialFromTextures, defineMaterial } from "./materials";
 
-export const mutateStateArray = (update: ((array: any[]) => void) | null) => (prevArray: React.SetStateAction<any>) => {
+export const mutateStateArray = (update: ((array: any[]) => void) | null) => (prevArray: React.SetStateAction<any>): any[] => {
   const arrayToReturn = [...prevArray];
   update?.(arrayToReturn);
   return arrayToReturn;
@@ -63,7 +63,9 @@ interface ICreateMeshComponentParams {
   components: IMeshComponentsObject;
 }
 
-export const createMeshComponent = ({ meshes, components }: ICreateMeshComponentParams) => {
+export const createMeshComponent = (
+  { meshes, components }: ICreateMeshComponentParams
+): ((meshName: string) => JSX.Element) => {
   return (meshName: string): JSX.Element => {
     const Component: React.FC<IMeshComponentProps> = components[meshName];
     const mesh: THREE.Mesh = meshes[meshName];

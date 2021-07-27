@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import * as THREE from "three";
-import { IAnimationData, IDialogue, IInteraction, IInteractionDef, IThreeScene, SceneObject } from "@types";
+import { IAnimationData, IInteractionEvents, IInteraction, IInteractionDef, IThreeScene, SceneObject } from "@types";
 import { getInitialState, last } from "@utils";
 
 interface IInteract {
@@ -91,7 +91,7 @@ const useAnimation = (
 }
 
 const useDialogue = (
-  dialogue: IDialogue | null,
+  dialogue: IInteractionEvents | null,
   { state, next, castState }: IInteract,
   { scene, camera, renderer }: IThreeScene
 ) => {

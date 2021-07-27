@@ -13,7 +13,7 @@ const useAddObject = (
   useEffect(() => {
     if (!(object && scene && loop) || added) return;
     configObject(object);
-    object.traverse((child: ThreeGroupChild) => {
+    object.traverse((child: ThreeGroupChild): void => {
       if (child instanceof THREE.Mesh) {
         child.castShadow = true;
         child.receiveShadow = true;
@@ -23,7 +23,6 @@ const useAddObject = (
     scene.add(object);
     loop.add(object);
     scene.userData.setLoaded(object.name);
-    console.log(object);
     setAdded(true);
   }, [object, added]);
 }

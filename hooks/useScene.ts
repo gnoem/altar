@@ -31,7 +31,7 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
     addEnvironmentTexture(scene, camera, renderer);
     scene.userData = {
       canvas: sceneRef,
-      unlock: (power: string) => {
+      unlock: (power: string): void => {
         setNewPower(power);
       }
     }
@@ -43,7 +43,7 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
     setRenderer(renderer);
     setLoop(loop);
     sceneRef.appendChild(renderer.domElement);
-    const animate = () => {
+    const animate = (): void => {
       requestAnimationFrame( animate );
       // @ts-ignore
       water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
@@ -59,7 +59,7 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
     if (newPower === 'lookaround') {
       dragToLookAround(camera, renderer);
     }
-    setUnlocked(mutateStateArray((array: string[]) => {
+    setUnlocked(mutateStateArray((array: string[]): number | null => {
       if (array.includes(newPower)) return null;
       return array.push(newPower);
     }));
@@ -102,7 +102,7 @@ const addLighting = (scene: THREE.Scene): void => {
   scene.add( ambientLight );
 }
 
-const addEnvironmentTexture = (scene: THREE.Scene, camera: THREE.Camera, renderer: THREE.WebGLRenderer) => {
+const addEnvironmentTexture = (scene: THREE.Scene, camera: THREE.Camera, renderer: THREE.WebGLRenderer): void => {
   const pmremGenerator = new THREE.PMREMGenerator( renderer );
   pmremGenerator.compileEquirectangularShader();
   new RGBELoader()

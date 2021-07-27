@@ -33,7 +33,7 @@ const dialogue = (
 ): {
   [state: string]: () => void
 } => {
-  const welcome = () => {
+  const welcome = (): void => {
     const name = prompt(`
       hi, welcome to the altar at GNAGUA W16V\n
       its nice to have a visitors!\n
@@ -55,7 +55,7 @@ const dialogue = (
     `);
     next();
   }
-  const welcomed = () => {
+  const welcomed = (): void => {
     scene.userData.unlock('lookaround');
   }
   return {

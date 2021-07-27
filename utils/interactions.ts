@@ -1,5 +1,6 @@
 import * as THREE from "three";
-import { IAnimationData, IAnimationMap, IKeyframeMap } from "@types";
+import { IAnimationData, IInteractionMap, IKeyframe, IKeyframeMap } from "@types";
+import { sumMatrices } from "@utils";
 
 interface IFullKeyframe {
   rotation: THREE.Quaternion;
@@ -13,7 +14,7 @@ type IFullKeyframeTrack = [
   THREE.VectorKeyframeTrack
 ]
 
-const getInitialState = (blueprint: IAnimationMap): string => Object.keys(blueprint)[0];
+const getInitialState = (blueprint: IInteractionMap): string => Object.keys(blueprint)[0];
 
 const getKeyframeTracks = (
   states: string[],
@@ -62,6 +63,27 @@ const getKeyframeTracks = (
   }
   const keyframes: IFullKeyframe[] = states.map((state: string): IFullKeyframe => getKeyframe(state));
   return generateTracks(keyframes);
+}
+
+interface IKeyframeRow {
+  dimension: string;
+  value: number[];
+}
+
+export const createKeyframeFromDelta = (originalKeyframe: IKeyframe, delta: IKeyframe): IKeyframe => {
+  // for each [rotation, position, scale] in originalKeyframe, add the corresponding array element of delta
+  const originalKeyframeEntries: [string, number[]][] = Object.entries(originalKeyframe);
+  const newKeyframeRows: IKeyframeRow[] = originalKeyframeEntries.map(([dimension, values]: [string, number[]]): IKeyframeRow => {
+    const newValue = sumMatrices(values, delta[dimension] ?? [0, 0, 0]);
+    return {
+      dimension,
+      value: newValue
+    }
+  });
+  return newKeyframeRows.reduce((obj: IKeyframe, { dimension, value }: IKeyframeRow): IKeyframe => {
+    obj[dimension] = value;
+    return obj;
+  }, {});
 }
 
 const animate = (animationKeyframes: () => IKeyframeMap) => (

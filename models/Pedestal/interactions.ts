@@ -1,9 +1,7 @@
-import { IInteraction, IInteractionDef, IKeyframeMap } from "@types";
+import { IInteraction, IInteractionMap, IKeyframeMap } from "@types";
 import { getAnimationData } from "@utils";
 
-const blueprint: {
-  [start: string]: IInteractionDef
-} = {
+const blueprint: IInteractionMap = {
   'underwater': {
     steps: ['abovewater'],
     times: [3]
@@ -29,6 +27,5 @@ const animationKeyframes = (): IKeyframeMap => {
 
 export const interactions: IInteraction = {
   blueprint,
-  animations: getAnimationData(animationKeyframes),
-  dialogue: null
+  animations: getAnimationData(animationKeyframes)
 }

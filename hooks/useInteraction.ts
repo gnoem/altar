@@ -13,7 +13,7 @@ interface IInteract {
 const useInteraction = (
   object: SceneObject | null,
   sceneComponents: IThreeScene,
-  { blueprint, animations, dialogue }: IInteraction
+  { blueprint, animations, events }: IInteraction
 ): IInteract => {
   // todo add "history" - array of strings representing past states in order
   const [interacted, setInteracted] = useState<number | IInteractionDef | null>(null);
@@ -41,14 +41,14 @@ const useInteraction = (
           : blueprint[last(prevState.steps)];
         return valueToReturn ?? prevState;
       });
-    // ...or cast state directly, e.g. from dialog
+    // ...or cast state directly, e.g. from an event via eventsMap
     } else if (interacted.steps && interacted.times) {
       setState(interacted);
     }
     setInteracted(null);
   }, [interacted]);
 
-  useDialogue(dialogue, {
+  useInteractionEvents(events, {
     state,
     next: () => interact(),
     castState
@@ -90,17 +90,16 @@ const useAnimation = (
   }
 }
 
-const useDialogue = (
-  dialogue: IInteractionEvents | null,
+const useInteractionEvents = (
+  eventsMap: IInteractionEvents | null = null,
   { state, next, castState }: IInteract,
   { scene, camera, renderer }: IThreeScene
 ) => {
   useEffect(() => {
-    if (!dialogue) return;
-    if (!(scene && camera && renderer)) return;
+    if (!(eventsMap && scene && camera && renderer)) return;
     if (typeof state === 'string') return;
     const currentState = last(state!.steps);
-    dialogue(scene, next!, castState!)[currentState]?.();
+    eventsMap(scene, next!, castState!)[currentState]?.();
   }, [state]);
 }
 

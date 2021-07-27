@@ -33,10 +33,6 @@ export interface IObjectComponentProps {
 
 // object interactions, animations
 
-export interface IKeyframe {
-  [key: string]: number[]
-}
-
 export interface IAnimationData {
   animationKeyframes: () => IKeyframeMap;
   playAnimation: (mixer: THREE.AnimationMixer, states: string[], times: number[]) => void
@@ -47,7 +43,7 @@ export interface IInteractionDef {
   times: number[];
 }
 
-export interface IAnimationMap {
+export interface IInteractionMap {
   [start: string]: IInteractionDef
 }
 
@@ -59,18 +55,19 @@ export type IInteractionEvents = (
   [state: string]: () => void
 }
 
+export type IKeyframe = {
+  //[K in 'position' | 'rotation' | 'scale']: number[]
+  [key: string]: number[]
+}
+
 export interface IKeyframeMap {
-  [name: string]: {
-    position: number[];
-    rotation: number[];
-    scale: number[];
-  }
+  [name: string]: IKeyframe
 }
 
 export interface IInteraction {
-  blueprint: IAnimationMap;
+  blueprint: IInteractionMap;
   animations: IAnimationData;
-  dialogue: IInteractionEvents | null;
+  events?: IInteractionEvents | null;
 }
 
 // materials & textures

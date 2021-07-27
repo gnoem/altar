@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { IInteraction, IInteractionDef, IKeyframeMap } from "@types";
 import { getAnimationData } from "@utils";
+import { createKeyframeFromDelta } from "@utils/interactions";
 
 const blueprint: {
   [start: string]: IInteractionDef
@@ -27,7 +28,7 @@ const blueprint: {
   }
 }
 
-const dialogue = (
+const events = (
   scene: THREE.Scene,
   next: () => void
 ): {
@@ -65,36 +66,28 @@ const dialogue = (
 }
 
 const animationKeyframes = (): IKeyframeMap => {
-  const underwater = {
-    rotation: [0, Math.PI, 0],
-    position: [0, -6, 0],
-    scale: [1, 1, 1]
-  }
   const abovewater = {
     rotation: [0, 0, 0],
     position: [0, 0, 0],
     scale: [1, 1, 1]
   }
-  const welcomed = {
+  const underwater = createKeyframeFromDelta(abovewater, {
     rotation: [0, Math.PI, 0],
-    position: [0, -9, 0],
-    scale: [1, 1, 1]
-  }
-  const help = abovewater ?? {
-    rotation: [-Math.PI / 4, 0, 0],
-    position: [0, -4, 0],
-    scale: [0.5, 0.5, 0.5]
-  }
+    position: [0, -6, 0]
+  });
+  const welcomed = createKeyframeFromDelta(abovewater, {
+    rotation: [0, Math.PI, 0],
+    position: [0, -9, 0]
+  });
   return {
     underwater,
     abovewater,
-    welcomed,
-    help
+    welcomed
   }
 }
 
 export const interactions: IInteraction = {
   blueprint,
   animations: getAnimationData(animationKeyframes),
-  dialogue
+  events
 }

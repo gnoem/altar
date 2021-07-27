@@ -1,6 +1,6 @@
+import React, { Dispatch, SetStateAction } from "react";
 import * as THREE from "three";
 import { IMeshComponentsObject, IMeshRegistrationObject, IMeshesObject, ISimpleObject, IMeshRegistrationFunction, IMeshComponentProps, SceneElement } from "@types";
-import React, { Dispatch, SetStateAction } from "react";
 export { getInitialState, getAnimationData } from "./interactions";
 export { createMaterialFromTextures, defineMaterial } from "./materials";
 
@@ -18,6 +18,12 @@ export const randomNumberBetween = (min: number, max: number, decimalPlaces: num
   const randomDecimal = Math.random() * (max - min) + min;
   const roundingFactor = 10 ** decimalPlaces;
   return Math.round(randomDecimal * roundingFactor) / roundingFactor;
+}
+
+export const sumMatrices = (firstMatrix: number[], secondMatrix: number[]): number[] => {
+  return firstMatrix.map((number: number, index: number): number => {
+    return number + secondMatrix[index];
+  });
 }
 
 export const transformObject: {

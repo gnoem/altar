@@ -1,5 +1,6 @@
 import { IInteraction, IInteractionMap, IKeyframeMap } from "@types";
 import { getAnimationData } from "@utils";
+import { createKeyframeFromDelta } from "@utils/interactions";
 
 const blueprint: IInteractionMap = {
   'underwater': {
@@ -9,16 +10,14 @@ const blueprint: IInteractionMap = {
 }
 
 const animationKeyframes = (): IKeyframeMap => {
-  const underwater = {
-    rotation: [0, 0, 0],
-    position: [0, -8, 15],
-    scale: [1, 1, 1]
-  }
   const abovewater = {
     rotation: [0, 0, 0],
-    position: [0, -0.5, 15],
+    position: [0, 3.5, 40],
     scale: [1, 1, 1]
   }
+  const underwater = createKeyframeFromDelta(abovewater, {
+    position: [0, -22.5, 0]
+  });
   return {
     underwater,
     abovewater

@@ -2,11 +2,12 @@ import { useState } from "react";
 import { useAddObject, useGLTF, useInteraction } from "@hooks";
 import { IObjectComponentProps, IMeshesObject, IMeshComponentProps, SceneObject } from "@types";
 import { transformObject, getInitialState, createMeshComponent, meshRegistration } from "@utils";
-import { Tusks } from "./components";
+import { Tusks, Base } from "./components";
 import { interactions } from "./interactions";
 
 const components: { [name: string]: React.FC<IMeshComponentProps> } = {
-  tusks: Tusks
+  tusks: Tusks,
+  base: Base
 }
 
 const Pedestal: React.FC<IObjectComponentProps> = ({ name, sceneComponents }): JSX.Element | null => {

@@ -46,7 +46,7 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
     const animate = (): void => {
       requestAnimationFrame( animate );
       // @ts-ignore
-      water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
+      water.material.uniforms['time'].value += 1.0 / 60.0;
       loop.start();
     }
     animate();
@@ -82,7 +82,7 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
 const dragToLookAround = (camera: THREE.Camera, renderer: THREE.WebGLRenderer): void => {
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.minPolarAngle = Math.PI/2;
-  controls.maxPolarAngle = Math.PI/2;
+  controls.maxPolarAngle = Math.PI/2; // how far you can look upwards - keep this the way it is
   controls.minDistance = 5;
   controls.maxDistance = 50;
   // controls.update() must be called after any manual changes to the camera's transform
@@ -123,7 +123,6 @@ const addEnvironmentTexture = (scene: THREE.Scene, camera: THREE.Camera, rendere
       // use of RoughnessMipmapper is optional
       const roughnessMipmapper = new RoughnessMipmapper(renderer);
       roughnessMipmapper.dispose();
-
     });
 }
 

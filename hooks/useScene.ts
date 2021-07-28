@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import * as THREE from "three";
-import { Loop, DragControls, OrbitControls, RGBELoader, RoughnessMipmapper, objects } from "@lib";
+import { Loop, DragControls, OrbitControls, RGBELoader, RoughnessMipmapper, objects, PointerLockControls } from "@lib";
 import { IThreeScene } from "@types";
 import { transformObject, mutateStateArray } from "@utils";
 
@@ -37,7 +37,7 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
     renderer.shadowMap.enabled = true;
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.outputEncoding = THREE.sRGBEncoding;
-    const orbitControls = experimentalDrag(scene, camera, renderer);
+    pointerLockDrag(camera, renderer);
     setScene(scene);
     setCamera(camera);
     setRenderer(renderer);
@@ -47,7 +47,6 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
       requestAnimationFrame( animate );
       // @ts-ignore
       water.material.uniforms['time'].value += 1.0 / 60.0;
-      orbitControls.update();
       loop.start();
     }
     animate();
@@ -78,6 +77,16 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
     renderer,
     loop
   }
+}
+
+const pointerLockDrag = (camera: THREE.Camera, renderer: THREE.WebGLRenderer): PointerLockControls => {
+  const controls = new PointerLockControls(camera, renderer.domElement);
+  const handleClick = () => {
+    controls.lock();
+    window.removeEventListener('click', handleClick);
+  }
+  window.addEventListener('click', handleClick);
+  return controls;
 }
 
 const experimentalDrag = (scene: THREE.Scene, camera: THREE.Camera, renderer: THREE.WebGLRenderer): OrbitControls => {

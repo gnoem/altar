@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import * as THREE from "three";
-import { Loop, OrbitControls, RGBELoader, RoughnessMipmapper, objects } from "@lib";
+import { Loop, DragControls, OrbitControls, RGBELoader, RoughnessMipmapper, objects } from "@lib";
 import { IThreeScene } from "@types";
 import { transformObject, mutateStateArray } from "@utils";
 
@@ -25,7 +25,6 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
     });
     renderer.setPixelRatio(window.devicePixelRatio);
     const loop = new Loop(scene, camera, renderer);
-    camera.position.set(0, 0, 10);
     addLighting(scene);
     const water = addWater(scene);
     addEnvironmentTexture(scene, camera, renderer);
@@ -38,6 +37,7 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
     renderer.shadowMap.enabled = true;
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.outputEncoding = THREE.sRGBEncoding;
+    const orbitControls = experimentalDrag(scene, camera, renderer);
     setScene(scene);
     setCamera(camera);
     setRenderer(renderer);
@@ -47,6 +47,7 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
       requestAnimationFrame( animate );
       // @ts-ignore
       water.material.uniforms['time'].value += 1.0 / 60.0;
+      orbitControls.update();
       loop.start();
     }
     animate();
@@ -57,7 +58,7 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
     if (!(scene && camera && renderer && newPower)) return;
     if (unlocked.includes(newPower)) return;
     if (newPower === 'lookaround') {
-      dragToLookAround(camera, renderer);
+      scene.userData.enableOrbitControls?.();
     }
     setUnlocked(mutateStateArray((array: string[]): number | null => {
       if (array.includes(newPower)) return null;
@@ -79,14 +80,32 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
   }
 }
 
-const dragToLookAround = (camera: THREE.Camera, renderer: THREE.WebGLRenderer): void => {
-  const controls = new OrbitControls(camera, renderer.domElement);
-  controls.minPolarAngle = Math.PI/2;
-  controls.maxPolarAngle = Math.PI/2; // how far you can look upwards - keep this the way it is
-  controls.minDistance = 5;
-  controls.maxDistance = 50;
-  // controls.update() must be called after any manual changes to the camera's transform
-  controls.update();
+const experimentalDrag = (scene: THREE.Scene, camera: THREE.Camera, renderer: THREE.WebGLRenderer): OrbitControls => {
+  /* OrbitControls with zoom disabled + DragControls to allow moving the camera backwards and forward
+  lets you click & drag your screen to look around, then use the wheel/trackpad to move around in the space instead of just zooming in/out
+  
+  bugs out when you translate the camera and then try to reset orbitControls.target (the point around which the camera orbits) to the camera's new position */
+
+  const orbitControls = new OrbitControls(camera, renderer.domElement);
+  orbitControls.target = new THREE.Vector3(0, 0, 5);
+  orbitControls.enableZoom = false;
+  orbitControls.minPolarAngle = Math.PI/2;
+  orbitControls.maxPolarAngle = Math.PI/2; // how far you can look upwards - do not change or else camera might go in the water
+  camera.position.copy(orbitControls.target);
+  scene.userData.enableOrbitControls = (): void => {
+    orbitControls.enabled = true;
+  }
+
+  const dragControls = new DragControls(camera, renderer, {
+    orbitCenter: orbitControls.target
+  });
+
+  dragControls.enableRotation = false;
+  dragControls.userData.resetTarget = (target: THREE.Vector3): void => {
+    orbitControls.target.set(target.x, target.y, target.z);
+    orbitControls.update();
+  }
+  return orbitControls;
 }
 
 const addLighting = (scene: THREE.Scene): void => {

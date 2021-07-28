@@ -12,7 +12,7 @@ const blueprint: IInteractionMap = {
 const animationKeyframes = (): IKeyframeMap => {
   const abovewater = {
     rotation: [0, 0, 0],
-    position: [0, 3.5, 40],
+    position: [0, 3.5, 50],
     scale: [1, 1, 1]
   }
   const underwater = createKeyframeFromDelta(abovewater, {

@@ -18,7 +18,7 @@ const Base: React.FC<IMeshComponentProps> = ({ mesh, name }): null => {
     });
     mesh.name = name;
     mesh.material = createMaterialFromTextures({ textures, createMaterial });
-    console.log(mesh);
+    //console.log(mesh);
   }, [mesh]);
 
   return null;

@@ -68,7 +68,7 @@ const events = (
 const animationKeyframes = (): IKeyframeMap => {
   const abovewater = {
     rotation: [0, 0, 0],
-    position: [0, 0, 0],
+    position: [0, 0, -5],
     scale: [1, 1, 1]
   }
   const underwater = createKeyframeFromDelta(abovewater, {

@@ -28,7 +28,7 @@ export const useVerifyLoaded = (objectNames: string[], sceneComponents: IThreeSc
   useEffect(() => {
     if (!sceneComponents || !objectsList) return;
     const isReady = objectsList.every(obj => obj.loaded);
-    const delay = 3000;
+    const delay = 0// 3000;
     if (isReady) {
       setTimeout(() => {
         setLoading(false);

@@ -78,7 +78,7 @@ const pointerLockDrag = (scene: THREE.Scene, camera: THREE.Camera, renderer: THR
   controls.boundaryX = [-150, 150];
   controls.boundaryY = [0, 15];
   controls.boundaryZ = [-150, 150];
-  controls.connect();
+  //controls.connect();
   scene.userData.enableDragControls = (enableControls: boolean = true): void => {
     if (enableControls) controls.connect();
     else controls.dispose();

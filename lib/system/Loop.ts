@@ -1,8 +1,8 @@
-import { PointerLockControls } from "@lib/three";
-import { SceneObject } from "@types";
 import * as THREE from "three";
+import { CameraControls } from "@lib";
+import { SceneObject } from "@types";
 
-type Updatable = SceneObject | PointerLockControls;
+type Updatable = SceneObject | CameraControls;
 
 const clock = new THREE.Clock();
 

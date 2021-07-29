@@ -168,7 +168,7 @@ class CameraControls extends THREE.EventDispatcher {
 		}
 
 		const onPointerlockError = (): void => {
-			console.error('THREE.PointerLockControls: Unable to use Pointer Lock API');
+			console.error('CameraControls: Unable to use Pointer Lock API');
 		}
 
 		this.connect = (): void => {
@@ -269,4 +269,4 @@ class CameraControls extends THREE.EventDispatcher {
 
 }
 
-export { CameraControls }
+export default CameraControls;

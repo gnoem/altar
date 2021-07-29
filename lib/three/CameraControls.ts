@@ -34,7 +34,7 @@ const keys: IStringObject = {
 
 type Boundary = [number | null, number | null] | null;
 
-class PointerLockControls extends THREE.EventDispatcher {
+class CameraControls extends THREE.EventDispatcher {
 
 	domElement: HTMLElement;
 	mouseDown: boolean;
@@ -269,4 +269,4 @@ class PointerLockControls extends THREE.EventDispatcher {
 
 }
 
-export { PointerLockControls }
+export { CameraControls }

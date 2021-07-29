@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import * as THREE from "three";
-import { Loop, DragControls, OrbitControls, RGBELoader, RoughnessMipmapper, objects, PointerLockControls } from "@lib";
+import { Loop, CameraControls, RGBELoader, RoughnessMipmapper, objects } from "@lib";
 import { IThreeScene } from "@types";
 import { transformObject, mutateStateArray } from "@utils";
 
@@ -37,7 +37,7 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
     renderer.shadowMap.enabled = true;
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.outputEncoding = THREE.sRGBEncoding;
-    pointerLockDrag(scene, camera, renderer, loop);
+    addCameraControls(scene, camera, renderer, loop);
     setScene(scene);
     setCamera(camera);
     setRenderer(renderer);
@@ -51,7 +51,7 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
     if (!(scene && camera && renderer && newPower)) return;
     if (unlocked.includes(newPower)) return;
     if (newPower === 'lookaround') {
-      scene.userData.enableDragControls?.();
+      scene.userData.enableCameraControls?.();
     }
     setUnlocked(mutateStateArray((array: string[]): number | null => {
       if (array.includes(newPower)) return null;
@@ -73,13 +73,11 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
   }
 }
 
-const pointerLockDrag = (scene: THREE.Scene, camera: THREE.Camera, renderer: THREE.WebGLRenderer, loop: Loop): PointerLockControls => {
-  const controls = new PointerLockControls(camera, renderer.domElement);
-  controls.boundaryX = [-150, 150];
+const addCameraControls = (scene: THREE.Scene, camera: THREE.Camera, renderer: THREE.WebGLRenderer, loop: Loop): CameraControls => {
+  const controls = new CameraControls(camera, renderer.domElement);
   controls.boundaryY = [0, 15];
-  controls.boundaryZ = [-150, 150];
   //controls.connect();
-  scene.userData.enableDragControls = (enableControls: boolean = true): void => {
+  scene.userData.enableCameraControls = (enableControls: boolean = true): void => {
     if (enableControls) controls.connect();
     else controls.dispose();
   }

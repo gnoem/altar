@@ -20,6 +20,11 @@ export const randomNumberBetween = (min: number, max: number, decimalPlaces: num
   return Math.round(randomDecimal * roundingFactor) / roundingFactor;
 }
 
+export const roundToDecimalPlaces = (number: number, places: number): number => {
+  const factor = Math.pow(10, places);
+  return Math.round(number * factor) / factor;
+}
+
 export const sumMatrices = (firstMatrix: number[], secondMatrix: number[]): number[] => {
   return firstMatrix.map((number: number, index: number): number => {
     return number + secondMatrix[index];

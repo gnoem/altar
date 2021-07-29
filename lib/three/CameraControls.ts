@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { ISimpleObject, IStringObject } from "@types";
+import { roundToDecimalPlaces } from "@utils";
 
 const _euler = new THREE.Euler(0, 0, 0, 'YXZ');
 const _vector = new THREE.Vector3();
@@ -128,7 +129,7 @@ class CameraControls extends THREE.EventDispatcher {
 			if (this.wheelToZoom) {
 				this.moveForward(d * this.movementSpeed);
 			} else {
-				this.moveUp(d * this.movementSpeed);
+				this.moveUp(d * this.movementSpeed * 0.5);
 			}
 		}
 
@@ -146,9 +147,9 @@ class CameraControls extends THREE.EventDispatcher {
 				if (boundary == null) return false;
 				const [min, max] = boundary;
 				// @ts-ignore
-				const exceedsMin = (min != null) && (newPosition[axis] < min);
-				// @ts-ignore
-				const exceedsMax = (max != null) && (newPosition[axis] > max);
+				const targetValue = roundToDecimalPlaces(newPosition[axis], 2);
+				const exceedsMin = (min != null) && (targetValue < min);
+				const exceedsMax = (max != null) && (targetValue > max);
 				return (exceedsMin || exceedsMax);
 			}
 

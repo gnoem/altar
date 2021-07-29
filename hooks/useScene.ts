@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import * as THREE from "three";
-import { Loop, CameraControls, RGBELoader, RoughnessMipmapper, objects } from "@lib";
+import { Loop, CameraControls, RoughnessMipmapper, objects, RGBELoader } from "@lib";
 import { IThreeScene } from "@types";
 import { transformObject, mutateStateArray } from "@utils";
 
@@ -78,7 +78,7 @@ const addCameraControls = (scene: THREE.Scene, camera: THREE.Camera, renderer: T
   controls.boundaryX = [-1000, 1000];
   controls.boundaryZ = [-1000, 1000];
   controls.boundaryY = [0, 15];
-  //controls.connect();
+  controls.connect();
   scene.userData.enableCameraControls = (enableControls: boolean = true): void => {
     if (enableControls) controls.connect();
     else controls.dispose();
@@ -115,8 +115,6 @@ const addEnvironmentTexture = (scene: THREE.Scene, camera: THREE.Camera, rendere
 
       texture.dispose();
       pmremGenerator.dispose();
-
-      renderer.render(scene, camera);
 
       // use of RoughnessMipmapper is optional
       const roughnessMipmapper = new RoughnessMipmapper(renderer);

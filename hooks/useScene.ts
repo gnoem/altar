@@ -26,7 +26,7 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
     renderer.setPixelRatio(window.devicePixelRatio);
     const loop = new Loop(scene, camera, renderer);
     addLighting(scene);
-    const water = addWater(scene);
+    addWater(scene, loop);
     addEnvironmentTexture(scene, camera, renderer);
     scene.userData = {
       canvas: sceneRef,
@@ -37,19 +37,13 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
     renderer.shadowMap.enabled = true;
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.outputEncoding = THREE.sRGBEncoding;
-    pointerLockDrag(camera, renderer);
+    pointerLockDrag(scene, camera, renderer, loop);
     setScene(scene);
     setCamera(camera);
     setRenderer(renderer);
     setLoop(loop);
+    loop.start();
     sceneRef.appendChild(renderer.domElement);
-    const animate = (): void => {
-      requestAnimationFrame( animate );
-      // @ts-ignore
-      water.material.uniforms['time'].value += 1.0 / 60.0;
-      loop.start();
-    }
-    animate();
     setIsSet(true);
   }, [isSet, sceneRef]);
 
@@ -57,7 +51,7 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
     if (!(scene && camera && renderer && newPower)) return;
     if (unlocked.includes(newPower)) return;
     if (newPower === 'lookaround') {
-      scene.userData.enableOrbitControls?.();
+      scene.userData.enableDragControls?.();
     }
     setUnlocked(mutateStateArray((array: string[]): number | null => {
       if (array.includes(newPower)) return null;
@@ -79,42 +73,18 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
   }
 }
 
-const pointerLockDrag = (camera: THREE.Camera, renderer: THREE.WebGLRenderer): PointerLockControls => {
+const pointerLockDrag = (scene: THREE.Scene, camera: THREE.Camera, renderer: THREE.WebGLRenderer, loop: Loop): PointerLockControls => {
   const controls = new PointerLockControls(camera, renderer.domElement);
-  const handleClick = () => {
-    controls.lock();
-    window.removeEventListener('click', handleClick);
+  controls.boundaryX = [-150, 150];
+  controls.boundaryY = [0, 15];
+  controls.boundaryZ = [-150, 150];
+  controls.connect();
+  scene.userData.enableDragControls = (enableControls: boolean = true): void => {
+    if (enableControls) controls.connect();
+    else controls.dispose();
   }
-  window.addEventListener('click', handleClick);
+  loop.add(controls);
   return controls;
-}
-
-const experimentalDrag = (scene: THREE.Scene, camera: THREE.Camera, renderer: THREE.WebGLRenderer): OrbitControls => {
-  /* OrbitControls with zoom disabled + DragControls to allow moving the camera backwards and forward
-  lets you click & drag your screen to look around, then use the wheel/trackpad to move around in the space instead of just zooming in/out
-  
-  bugs out when you translate the camera and then try to reset orbitControls.target (the point around which the camera orbits) to the camera's new position */
-
-  const orbitControls = new OrbitControls(camera, renderer.domElement);
-  orbitControls.target = new THREE.Vector3(0, 0, 5);
-  orbitControls.enableZoom = false;
-  orbitControls.minPolarAngle = Math.PI/2;
-  orbitControls.maxPolarAngle = Math.PI/2; // how far you can look upwards - do not change or else camera might go in the water
-  camera.position.copy(orbitControls.target);
-  scene.userData.enableOrbitControls = (): void => {
-    orbitControls.enabled = true;
-  }
-
-  const dragControls = new DragControls(camera, renderer, {
-    orbitCenter: orbitControls.target
-  });
-
-  dragControls.enableRotation = false;
-  dragControls.userData.resetTarget = (target: THREE.Vector3): void => {
-    orbitControls.target.set(target.x, target.y, target.z);
-    orbitControls.update();
-  }
-  return orbitControls;
 }
 
 const addLighting = (scene: THREE.Scene): void => {
@@ -154,28 +124,27 @@ const addEnvironmentTexture = (scene: THREE.Scene, camera: THREE.Camera, rendere
     });
 }
 
-const addWater = (scene: THREE.Scene) => {
-  const waterGeometry = new THREE.PlaneGeometry( 10000, 10000 );
-
-  const water = new Water(
-    waterGeometry,
-    {
-      textureWidth: 512,
-      textureHeight: 512,
-      waterNormals: new THREE.TextureLoader().load( 'textures/waternormals.jpg', function ( texture ) {
-
-        texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-
-      } ),
-      sunDirection: new THREE.Vector3(),
-      sunColor: 0xffffff,
-      waterColor: 0x001e0f,
-      distortionScale: 3.7,
-      fog: scene.fog !== undefined
-    }
-  );
+const addWater = (scene: THREE.Scene, loop: Loop) => {
+  const waterGeometry = new THREE.PlaneGeometry(10000, 10000);
+  const water = new Water(waterGeometry, {
+    textureWidth: 512,
+    textureHeight: 512,
+    waterNormals: new THREE.TextureLoader().load('textures/waternormals.jpg', (texture: THREE.Texture): void => {
+      texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    }),
+    sunDirection: new THREE.Vector3(),
+    sunColor: 0xffffff,
+    waterColor: 0x001e0f,
+    distortionScale: 3.7,
+    fog: scene.fog !== undefined
+  });
   water.position.y = -5;
-  water.rotation.x = - Math.PI / 2;
+  water.rotation.x = -Math.PI / 2;
+  water.userData.tick = (): void => {
+    const waterMaterial = water.material;
+    (waterMaterial as THREE.ShaderMaterial).uniforms['time'].value += 1.0 / 60.0;
+  }
+  loop.add(water);
   scene.add(water);
   return water;
 }

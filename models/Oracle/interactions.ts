@@ -51,8 +51,7 @@ const events = (
     }
     alert(`
       im the oracle here, i can help you if you have questions or are not sure how this works.\n
-      to start, after you close out of this box, why not try clicking and dragging your cursor to look around?\n
-      (this altar is a work in progress - there is almost nothing here yet, but feel free to explore)
+      after you close out of this box, you can use W/A/S/D or your arrow keys to move, and scroll with your mouse wheel or trackpad to move up or down. click and drag your cursor to look around the scene. hope you enjoy!
     `);
     next();
   }
@@ -68,7 +67,7 @@ const events = (
 const animationKeyframes = (): IKeyframeMap => {
   const abovewater = {
     rotation: [0, 0, 0],
-    position: [0, 0, -5],
+    position: [0, 0, -10],
     scale: [1, 1, 1]
   }
   const underwater = createKeyframeFromDelta(abovewater, {

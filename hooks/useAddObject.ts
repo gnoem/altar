@@ -7,7 +7,7 @@ const useAddObject = (
   { scene, loop }: IThreeScene,
   configObject: (object: SceneObject) => void,
   configChildMeshes?: (object: THREE.Mesh) => void
-): void => {
+): boolean => {
   const [added, setAdded] = useState<boolean>(false);
 
   useEffect(() => {
@@ -25,6 +25,8 @@ const useAddObject = (
     scene.userData.setLoaded(object.name);
     setAdded(true);
   }, [object, added]);
+
+  return added;
 }
 
 export default useAddObject;

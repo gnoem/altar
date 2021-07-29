@@ -1,9 +1,9 @@
 import * as THREE from "three";
+import { ISimpleObject, IStringObject } from "@types";
 
 const _euler = new THREE.Euler(0, 0, 0, 'YXZ');
 const _vector = new THREE.Vector3();
 
-const _changeEvent = { type: 'change' }
 const _lockEvent = { type: 'lock' }
 const _unlockEvent = { type: 'unlock' }
 
@@ -12,19 +12,42 @@ const _PI_2 = Math.PI / 2;
 const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
 
-let moveForward = false;
-let moveBackward = false;
-let moveLeft = false;
-let moveRight = false;
+const move: ISimpleObject = {
+	forward: false,
+	backward: false,
+	left: false,
+	right: false,
+	up: false,
+	down: false
+}
+
+const keys: IStringObject = {
+	'ArrowUp': 'forward',
+	'KeyW': 'forward',
+	'ArrowLeft': 'left',
+	'KeyA': 'left',
+	'ArrowDown': 'backward',
+	'KeyS': 'backward',
+	'ArrowRight': 'right',
+	'KeyD': 'right',
+}
+
+type Boundary = [number | null, number | null] | null;
 
 class PointerLockControls extends THREE.EventDispatcher {
 
 	domElement: HTMLElement;
 	mouseDown: boolean;
 	isLocked: boolean;
+	isEnabled: boolean;
+	wheelToZoom: boolean;
 	movementSpeed: number;
+	boundaryX: Boundary;
+	boundaryY: Boundary;
+	boundaryZ: Boundary;
 	minPolarAngle: number;
 	maxPolarAngle: number;
+	userData: ISimpleObject;
 	connect: () => void;
 	disconnect: () => void;
 	update: (delta: number) => void;
@@ -32,6 +55,7 @@ class PointerLockControls extends THREE.EventDispatcher {
 	getDirection: (v: THREE.Vector3) => THREE.Vector3;
 	moveForward: (distance: number) => void;
 	moveRight: (distance: number) => void;
+	moveUp: (distance: number) => void;
 	lock: () => void;
 	unlock: () => void;
 
@@ -42,21 +66,35 @@ class PointerLockControls extends THREE.EventDispatcher {
 		this.domElement = domElement;
 		this.mouseDown = false;
 		this.isLocked = false;
+		this.isEnabled = false;
 
+		this.wheelToZoom = false;
 		this.movementSpeed = 1;
+		this.boundaryX = null;
+		this.boundaryY = null;
+		this.boundaryZ = null;
 
 		// Set to constrain the pitch of the camera
 		// Range is 0 to Math.PI radians
-		this.minPolarAngle = 0; // radians
-		this.maxPolarAngle = Math.PI; // radians
+		this.minPolarAngle = 0; // radians - how far can we look downwards
+		this.maxPolarAngle = Math.PI; // radians - how far can we look upwards
+
+		this.userData = {
+			tick: (delta: number) => this.update(delta)
+		}
 
 		const scope = this;
 
 		const onKeyDown = (e: KeyboardEvent): void => {
-			console.log(e.code);
-			if (e.code === 'KeyW') {
-				moveForward = true;
-			}
+			const direction = keys[e.code];
+			if (!direction || move[direction] == null) return;
+			move[direction] = true;
+		}
+
+		const onKeyUp = (e: KeyboardEvent): void => {
+			const direction = keys[e.code];
+			if (!direction || move[direction] == null) return;
+			move[direction] = false;
 		}
 
 		const onMouseDown = (): void => {
@@ -87,7 +125,36 @@ class PointerLockControls extends THREE.EventDispatcher {
 
 		const onMouseWheel = (e: WheelEvent) => {
 			const d = (e.deltaY < 0) ? 1 : -1;
-			this.moveForward(d * this.movementSpeed);
+			if (this.wheelToZoom) {
+				this.moveForward(d * this.movementSpeed);
+			} else {
+				this.moveUp(d * this.movementSpeed);
+			}
+		}
+
+		const isMovementPermitted = (newPosition: THREE.Vector3) => {
+			const boundariesObject: {
+				[axis: string]: Boundary
+			} = {
+				x: this.boundaryX,
+				y: this.boundaryY,
+				z: this.boundaryZ
+			}
+
+			const isExceeded = (boundaryDef: [string, Boundary]) => {
+				const [axis, boundary] = boundaryDef;
+				if (boundary == null) return false;
+				const [min, max] = boundary;
+				// @ts-ignore
+				const exceedsMin = (min != null) && (newPosition[axis] < min);
+				// @ts-ignore
+				const exceedsMax = (max != null) && (newPosition[axis] > max);
+				return (exceedsMin || exceedsMax);
+			}
+
+			const boundaries = Object.entries(boundariesObject);
+			
+			return !boundaries.some(isExceeded);
 		}
 
 		const onPointerlockChange = (): void => {
@@ -105,39 +172,52 @@ class PointerLockControls extends THREE.EventDispatcher {
 		}
 
 		this.connect = (): void => {
+			if (this.isEnabled) return;
+
 			scope.domElement.ownerDocument.addEventListener('keydown', onKeyDown);
+			scope.domElement.ownerDocument.addEventListener('keyup', onKeyUp);
 			scope.domElement.ownerDocument.addEventListener('mousedown', onMouseDown);
 			scope.domElement.ownerDocument.addEventListener('mouseup', onMouseUp);
 			scope.domElement.ownerDocument.addEventListener('mousemove', onMouseMove);
 			scope.domElement.ownerDocument.addEventListener('wheel', onMouseWheel);
 			scope.domElement.ownerDocument.addEventListener('pointerlockchange', onPointerlockChange);
 			scope.domElement.ownerDocument.addEventListener('pointerlockerror', onPointerlockError);
+
+			this.isEnabled = true;
 		}
 
 		this.disconnect = (): void => {
+			if (!this.isEnabled) return;
+
 			scope.domElement.ownerDocument.removeEventListener('keydown', onKeyDown);
+			scope.domElement.ownerDocument.removeEventListener('keyup', onKeyUp);
 			scope.domElement.ownerDocument.removeEventListener('mousedown', onMouseDown);
 			scope.domElement.ownerDocument.removeEventListener('mouseup', onMouseUp);
 			scope.domElement.ownerDocument.removeEventListener('mousemove', onMouseMove);
 			scope.domElement.ownerDocument.removeEventListener('wheel', onMouseWheel);
 			scope.domElement.ownerDocument.removeEventListener('pointerlockchange', onPointerlockChange);
 			scope.domElement.ownerDocument.removeEventListener('pointerlockerror', onPointerlockError);
+
+			this.isEnabled = false;
 		}
 
 		this.update = (delta: number) => {
 
 			velocity.x -= velocity.x * 10.0 * delta;
 			velocity.z -= velocity.z * 10.0 * delta;
-			velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
+			velocity.y -= velocity.y * 100.0 * delta; // 100.0 = mass
 
-			direction.z = Number(moveForward) - Number(moveBackward);
-			direction.x = Number(moveRight) - Number(moveLeft);
+			direction.x = Number(move.right) - Number(move.left);
+			direction.z = Number(move.forward) - Number(move.backward);
+			direction.y = Number(move.up) - Number(move.down);
 			direction.normalize(); // this ensures consistent movements in all directions
 
-			if (moveForward || moveBackward) velocity.z -= direction.z * 400.0 * delta;
-			if (moveLeft || moveRight) velocity.x -= direction.x * 400.0 * delta;
+			if (move.forward || move.backward) velocity.z -= direction.z * 400.0 * delta;
+			if (move.up || move.down) velocity.y -= direction.y * 400.0 * delta;
+			if (move.right || move.left) velocity.x -= direction.x * 400.0 * delta;
 
 			scope.moveRight(-velocity.x * delta);
+			scope.moveUp(-velocity.y * delta);
 			scope.moveForward(-velocity.z * delta);
 		}
 
@@ -153,12 +233,26 @@ class PointerLockControls extends THREE.EventDispatcher {
 			// assumes camera.up is y-up
 			_vector.setFromMatrixColumn(camera.matrix, 0);
 			_vector.crossVectors(camera.up, _vector);
-			camera.position.addScaledVector(_vector, distance);
+			const newPosition = camera.position.clone().addScaledVector(_vector, distance);
+			if (isMovementPermitted(newPosition)) {
+				camera.position.copy(newPosition);
+			}
 		}
 
 		this.moveRight = (distance: number): void => {
 			_vector.setFromMatrixColumn(camera.matrix, 0);
-			camera.position.addScaledVector(_vector, distance);
+			const newPosition = camera.position.clone().addScaledVector(_vector, distance);
+			if (isMovementPermitted(newPosition)) {
+				camera.position.copy(newPosition);
+			}
+		}
+
+		this.moveUp = (distance: number): void => {
+			const vec = new THREE.Vector3(0, distance, 0);
+			const newPosition = camera.position.clone().add(vec);
+			if (isMovementPermitted(newPosition)) {
+				camera.position.copy(newPosition);
+			}
 		}
 
 		this.lock = (): void => {
@@ -170,8 +264,6 @@ class PointerLockControls extends THREE.EventDispatcher {
 			this.isLocked = false;
 			//scope.domElement.ownerDocument.exitPointerLock();
 		}
-
-		this.connect();
 
 	}
 

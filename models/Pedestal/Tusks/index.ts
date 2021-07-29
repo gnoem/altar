@@ -9,6 +9,12 @@ const Tusks: React.FC<IMeshComponentProps> = ({ mesh, name }): null => {
     if (!mesh) return;
     mesh.name = name;
     mesh.material = createMaterialFromTextures(defineTusksMaterial());
+    console.log(mesh.userData.interactParent);
+    debugger;
+    mesh.userData.hoverCursor = 'pointer';
+    mesh.userData.events = {
+      click: mesh.userData.interactParent
+    }
   }, [mesh]);
 
   return null;

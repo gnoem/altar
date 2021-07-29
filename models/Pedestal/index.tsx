@@ -27,20 +27,12 @@ const Pedestal: React.FC<IObjectComponentProps> = ({ name, sceneComponents }): J
   }
 
   const configChildMeshes = (object: THREE.Mesh): void => {
-    object.userData.hoverCursor = 'pointer';
-    object.userData.events = {
-      click: (): void => {
-        interact?.();
-        if (object?.userData?.hoverCursor) {
-          object.userData.hoverCursor = '';
-        }
-      }
-    }
+    object.userData.interactParent = interact;
   }
 
-  useAddObject(object, sceneComponents, configObject, configChildMeshes);
+  const ready = useAddObject(object, sceneComponents, configObject, configChildMeshes);
 
-  return object
+  return ready
     ? <>{names.map(createMeshComponent({ meshes, components }))}</>
     : null;
 }

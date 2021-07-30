@@ -14,6 +14,10 @@ export const last = (array: any[]): any => {
   return array[array.length - 1];
 }
 
+export const getSlope = (x1: number, y1: number, x2: number, y2: number): number => {
+  return (y1 - y2) / (x1 - x2);
+}
+
 export const randomNumberBetween = (min: number, max: number, decimalPlaces: number = 0): number => {
   const randomDecimal = Math.random() * (max - min) + min;
   const roundingFactor = 10 ** decimalPlaces;

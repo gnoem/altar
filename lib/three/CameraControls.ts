@@ -1,6 +1,15 @@
 import * as THREE from "three";
 import { ISimpleObject, IStringObject } from "@types";
-import { roundToDecimalPlaces } from "@utils";
+import { getSlope, roundToDecimalPlaces } from "@utils";
+
+type Axis = 'x' | 'y';
+
+type Direction = 1 | -1;
+
+interface IMovement {
+	axis: Axis;
+	direction: Direction;
+}
 
 const _euler = new THREE.Euler(0, 0, 0, 'YXZ');
 const _vector = new THREE.Vector3();
@@ -15,8 +24,13 @@ const direction = new THREE.Vector3();
 
 let previousTouch: Touch | null = null;
 let eventCache: Touch[] = [];
-let prevDiff = -1;
+let prevCache: (Touch | null)[] = [];
+let prevDiff = {
+	x: -1,
+	y: -1
+}
 
+// for arrow key nav - mouse event nav (click or touch) should call this.moveRight, etc. directly
 const move: ISimpleObject = {
 	forward: false,
 	backward: false,
@@ -41,23 +55,29 @@ const touchedLog = (e: TouchEvent): boolean => {
 	return !!(e.target as HTMLElement)?.closest?.('#log');
 }
 
-const log = (logResult: string, overwrite: boolean = false): void => {
+const log = (logResult: string, overwrite: boolean = false, stick: boolean = false): void => {
 	const createDiv = (): HTMLDivElement => {
 		const containerDiv = document.createElement('div');
 		containerDiv.id = 'log';
+		const stickySpan = document.createElement('span');
 		const innerDiv = document.createElement('div');
 		const button = document.createElement('button');
 		button.innerHTML = '×';
 		button.onclick = () => {
 			document.body.removeChild(containerDiv);
 		}
+		stickySpan.style.background = '#333'
+		containerDiv.appendChild(stickySpan);
 		containerDiv.appendChild(innerDiv);
 		containerDiv.appendChild(button);
 		document.body.appendChild(containerDiv);
 		return innerDiv;
 	}
+	const span = document.querySelector('#log > span') ?? createDiv();
 	const div = document.querySelector('#log > div') ?? createDiv();
-	if (overwrite) {
+	if (stick) {
+		span.innerHTML = `> ${logResult}`;
+	} else if (overwrite) {
 		div.innerHTML = `> ${logResult}`;
 	} else {
 		div.innerHTML += `<br>> ${logResult}`;
@@ -74,8 +94,47 @@ const upsertCache = (e: TouchEvent) => {
 			eventCache[index] = thisTouch;
 		} else {
 			// add event to cache
-			eventCache.push(thisTouch);
+			const newIndex = eventCache.push(thisTouch) - 1; // .push returns new array length
+			prevCache[newIndex] = thisTouch;
 		}
+	}
+}
+
+const getTouchMovement = (index: number, strict: boolean = false): IMovement | null => {
+	const touch = eventCache[index];
+	const prevTouch = prevCache[index];
+	if (!prevTouch) return null;
+	const { clientX, clientY } = touch;
+	const { clientX: prevX, clientY: prevY } = prevTouch;
+	// remember to make y values negative for slope calculation because clientY value increases downwards, not upwards
+	const slope = getSlope(clientX, -clientY, prevX, -prevY);
+	const getAxis = (): Axis | null => {
+		const limit = strict ? 5 : 1; // 5 is kind of arbitrary but whatever
+		if (Math.abs(slope) >= limit) return 'y';
+		if (Math.abs(slope) < 1) return 'x';
+		else return null;
+	}
+	const axis = getAxis();
+	const getDirection = (): Direction | null => {
+		// assuming axis is not null
+		if (axis === 'x') {
+			const diffX = clientX - prevX;
+			if (diffX === 0) return null;
+			return (diffX > 0) ? 1 : -1;
+		}
+		if (axis === 'y') {
+			const diffY = prevY - clientY; // flipped because clientY value increases downwards
+			if (diffY === 0) return null;
+			return (diffY > 0) ? 1 : -1;
+		}
+		return null;
+		// return 1 or -1
+	}
+	const direction = getDirection();
+	if (!axis || !direction) return null;
+	return {
+		axis,
+		direction
 	}
 }
 
@@ -85,7 +144,6 @@ class CameraControls extends THREE.EventDispatcher {
 
 	domElement: HTMLElement;
 	mouseDown: boolean;
-	isLocked: boolean;
 	isEnabled: boolean;
 	wheelToZoom: boolean;
 	movementSpeed: number;
@@ -97,14 +155,13 @@ class CameraControls extends THREE.EventDispatcher {
 	userData: ISimpleObject;
 	connect: () => void;
 	disconnect: () => void;
+	halt: () => void;
 	update: (delta: number) => void;
 	dispose: () => void;
 	getDirection: (v: THREE.Vector3) => THREE.Vector3;
 	moveForward: (distance: number) => void;
 	moveRight: (distance: number) => void;
 	moveUp: (distance: number) => void;
-	lock: () => void;
-	unlock: () => void;
 
 	constructor(camera: THREE.Camera, domElement: HTMLElement) {
 
@@ -112,7 +169,6 @@ class CameraControls extends THREE.EventDispatcher {
 		
 		this.domElement = domElement;
 		this.mouseDown = false;
-		this.isLocked = false;
 		this.isEnabled = false;
 
 		this.wheelToZoom = false;
@@ -157,7 +213,7 @@ class CameraControls extends THREE.EventDispatcher {
 				z: this.boundaryZ
 			}
 
-			const isExceeded = (boundaryDef: [string, Boundary]) => {
+			const isExceeded = (boundaryDef: [string, Boundary]): boolean => {
 				const [axis, boundary] = boundaryDef;
 				if (boundary == null) return false;
 				const [min, max] = boundary;
@@ -169,8 +225,52 @@ class CameraControls extends THREE.EventDispatcher {
 			}
 
 			const boundaries = Object.entries(boundariesObject);
-			
-			return !boundaries.some(isExceeded);
+			const isPermitted = !boundaries.some(isExceeded);
+			if (!isPermitted) {
+				this.halt();
+			}
+			return isPermitted;
+		}
+
+		// TOUCHSCREEN ONLY - 2-finger drag to move around x and y axis
+		const handleTranslate = ({ axis, direction }: IMovement): void => {
+			if (axis === 'x') {
+				this.moveRight(-direction * this.movementSpeed);
+			} else {
+				this.moveUp(-direction * this.movementSpeed);
+			}
+		}
+
+		// TOUCHSCREEN ONLY - pinch to move around z axis
+		const handlePinchZoom = (touchA: Touch, touchB: Touch): void => {
+			// Calculate the distance between the two pointers
+			const curDiff = {
+				x: Math.abs(touchA.clientX - touchB.clientX),
+				y: Math.abs(touchA.clientY - touchB.clientY)
+			}
+
+			// see whether X or Y difference is biggest and go with that
+			const axis = (curDiff.x >= curDiff.y) ? 'x' : 'y';
+
+			if (prevDiff[axis] > 0) {
+				const differenceIsMeaningful = Math.abs(curDiff[axis] - prevDiff[axis]) > 0.5;
+				if (!differenceIsMeaningful) {
+					this.halt();
+					return;
+				}
+				if (curDiff[axis] > prevDiff[axis]) { // the distance between the two pointers has increased
+					move.forward = true;
+				}
+				if (curDiff[axis] < prevDiff[axis]) { // the distance between the two pointers has decreased
+					move.backward = true;
+				}
+			}
+
+			// Cache the distance for the next move event 
+			prevDiff = {
+				x: curDiff.x,
+				y: curDiff.y
+			}
 		}
 
 		const onKeyDown = (e: KeyboardEvent): void => {
@@ -187,9 +287,6 @@ class CameraControls extends THREE.EventDispatcher {
 
 		const onMouseDown = (): void => {
 			this.mouseDown = true;
-			if (!scope.isLocked) {
-				this.lock();
-			}
 		}
 
 		const onMouseUp = (): void => {
@@ -197,7 +294,7 @@ class CameraControls extends THREE.EventDispatcher {
 		}
 
 		const onMouseMove = (e: MouseEvent): void => {
-			if (!scope.isLocked || !scope.mouseDown) return;
+			if (!scope.mouseDown) return;
 
 			const movementX = e.movementX || 0;
 			const movementY = e.movementY || 0;
@@ -206,7 +303,7 @@ class CameraControls extends THREE.EventDispatcher {
 			rotateCamera(movementX, movementY, speed);
 		}
 
-		const onMouseWheel = (e: WheelEvent) => {
+		const onMouseWheel = (e: WheelEvent): void => {
 			const d = (e.deltaY < 0) ? 1 : -1;
 			if (this.wheelToZoom) {
 				this.moveForward(d * this.movementSpeed);
@@ -217,46 +314,43 @@ class CameraControls extends THREE.EventDispatcher {
 
 		// TOUCHSCREEN - drag and pinch
 		const onTouchMove = (e: TouchEvent): void => {
-			if (!scope.isLocked) return;
 			if (touchedLog(e)) return;
 
-			// PINCH
+			// two-finger gestures, either pinch or drag
 			if (e.touches.length > 1) {
 				upsertCache(e);
 
-				// If two pointers are down, check for pinch gestures
+				// If two pointers are down, check for pinch and drag/pan gestures
 				if (eventCache.length == 2) {
 					const touchA = eventCache[0];
 					const touchB = eventCache[1];
-					// Calculate the distance between the two pointers
-					const curDiff = Math.abs(touchA.clientX - touchB.clientX);
+					
+					/* check if two pointers are travelling in roughly the same direction,
+					which will tell us whether or not the user is pinching or dragging */
+					const movementA = getTouchMovement(0);
+					const movementB = getTouchMovement(1);
 
-					// todo check if two pointers are travelling in same direction, if so then translate along X and Y instead
-					if (prevDiff > 0) {
-						const differenceIsMeaningful = Math.abs(curDiff - prevDiff) > 0.5;
-						if (!differenceIsMeaningful) {
-							move.forward = false;
-							move.backward = false;
-							return;
-						}
-
-						if (curDiff > prevDiff) {
-							// The distance between the two pointers has increased
-							move.forward = true;
-						}
-						if (curDiff < prevDiff) {
-							// The distance between the two pointers has decreased
-							move.backward = true;
-						}
+					const roughlySameDirection = (): boolean => {
+						if (!(movementA?.axis && movementA?.direction)) return false;
+						if (!(movementB?.axis && movementB?.direction)) return false;
+						if (!(movementA?.axis === movementB?.axis)) return false;
+						if (!(movementA?.direction === movementB?.direction)) return false;
+						return true;
 					}
 
-					// Cache the distance for the next move event 
-					prevDiff = curDiff;
+					if (roughlySameDirection()) {
+						// translate along X and Y axes
+						handleTranslate(movementA!);
+					} else {
+						// else zoom (translate along Z)
+						handlePinchZoom(touchA, touchB);
+					}
 				}
+
 				return;
 			}
 
-			// DRAG
+			// 1-finger drag
 			const touch = e.touches[0];
 
 			if (previousTouch) {
@@ -275,11 +369,9 @@ class CameraControls extends THREE.EventDispatcher {
 			upsertCache(e);
 		}
 
-		// TOUCHSCREEN - end touch
 		const onTouchEnd = (e: TouchEvent): void => {
 			if (touchedLog(e)) return;
-			move.forward = false;
-			move.backward = false;
+			this.halt();
 			previousTouch = null;
 			
 			// Remove this event from the target's cache
@@ -288,23 +380,29 @@ class CameraControls extends THREE.EventDispatcher {
 				// find this touch's index in event cache
 				const index = eventCache.findIndex(event => event.identifier === thisTouch.identifier);
 				if (index !== -1) {
+					prevCache[index] = null;
 					// remove event from cache
 					eventCache.splice(index, 1);
 				}
 			}
 
 			// If the number of pointers down is less than two then reset diff tracker
-			if (eventCache.length < 2) prevDiff = -1;
+			if (eventCache.length < 2) {
+				prevDiff = {
+					x: -1,
+					y: -1
+				}
+			}
 		}
 
 		const onPointerlockChange = (): void => {
 			if (scope.domElement.ownerDocument.pointerLockElement !== scope.domElement) {
 				scope.dispatchEvent(_unlockEvent);
-				scope.isLocked = false;
+				//scope.isLocked = false;
 				return;
 			}
 			scope.dispatchEvent(_lockEvent);
-			scope.isLocked = true;
+			//scope.isLocked = true;
 		}
 
 		const onPointerlockError = (): void => {
@@ -351,7 +449,15 @@ class CameraControls extends THREE.EventDispatcher {
 			this.isEnabled = false;
 		}
 
+		this.halt = (): void => {
+			for (const direction in move) {
+				move[direction] = false;
+			}
+		}
+
 		this.update = (delta: number) => {
+
+			if (Object.values(move).every(dir => dir === false)) return;
 
 			velocity.x -= velocity.x * 10.0 * delta;
 			velocity.z -= velocity.z * 10.0 * delta;
@@ -403,16 +509,6 @@ class CameraControls extends THREE.EventDispatcher {
 			if (isMovementPermitted(newPosition)) {
 				camera.position.copy(newPosition);
 			}
-		}
-
-		this.lock = (): void => {
-			this.isLocked = true;
-			//this.domElement.requestPointerLock();
-		}
-
-		this.unlock = (): void => {
-			this.isLocked = false;
-			//scope.domElement.ownerDocument.exitPointerLock();
 		}
 
 	}

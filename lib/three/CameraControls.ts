@@ -91,7 +91,6 @@ class CameraControls extends THREE.EventDispatcher {
 
 	domElement: HTMLElement;
 	mouseDown: boolean;
-	touchDown: boolean;
 	isPanning: boolean;
 	isPinching: boolean;
 	isEnabled: boolean;
@@ -119,7 +118,6 @@ class CameraControls extends THREE.EventDispatcher {
 		
 		this.domElement = domElement;
 		this.mouseDown = false;
-		this.touchDown = false;
 		this.isEnabled = false;
 
 		this.isPinching = false;
@@ -385,8 +383,9 @@ class CameraControls extends THREE.EventDispatcher {
 		const onTouchStart = (e: TouchEvent): void => {
 			if (touchedLog(e)) return;
 			cacheTouchEvent(e);
-			this.touchDown = true;
-			// set interval
+			if ((e.touches.length > 1) || (eventCache.length > 0)) {
+        e.preventDefault();
+      }
 		}
 
 		const onTouchEnd = (e: TouchEvent): void => {
@@ -443,7 +442,7 @@ class CameraControls extends THREE.EventDispatcher {
 			scope.domElement.ownerDocument.addEventListener('wheel', onMouseWheel);
 			
 			scope.domElement.ownerDocument.addEventListener('touchmove', onTouchMove);
-			scope.domElement.ownerDocument.addEventListener('touchstart', onTouchStart);
+			scope.domElement.ownerDocument.addEventListener('touchstart', onTouchStart, { passive: false });
 			scope.domElement.ownerDocument.addEventListener('touchend', onTouchEnd);
 
 			scope.domElement.ownerDocument.addEventListener('pointerlockchange', onPointerlockChange);

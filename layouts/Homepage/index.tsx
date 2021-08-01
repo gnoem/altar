@@ -1,15 +1,8 @@
-import React, { useEffect } from "react";
+import React from "react";
 import Head from "next/head";
 import styles from "./Homepage.module.css";
 
 const Homepage: React.FC = ({ children }): JSX.Element => {
-  useEffect(() => {
-    const disablePinchZoom = (event: TouchEvent): void => {
-      event.preventDefault();
-    }
-    window.addEventListener('touchstart', disablePinchZoom, { passive: false });
-    return () => window.removeEventListener('touchstart', disablePinchZoom);
-  }, []);
   return (
     <div className={styles.container}>
       <Header />

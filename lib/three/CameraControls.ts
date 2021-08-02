@@ -15,9 +15,6 @@ interface IMovement {
 const _euler = new THREE.Euler(0, 0, 0, 'YXZ');
 const _vector = new THREE.Vector3();
 
-const _lockEvent = { type: 'lock' }
-const _unlockEvent = { type: 'unlock' }
-
 const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
 
@@ -30,7 +27,7 @@ let prevDiff = {
 }
 
 // for arrow key nav - mouse event nav (click or touch) should call this.moveRight, etc. directly
-const move: ISimpleObject = {
+const currentlyMoving: ISimpleObject = {
 	forward: false,
 	backward: false,
 	left: false,
@@ -39,15 +36,15 @@ const move: ISimpleObject = {
 	down: false
 }
 
-const keys: IStringObject = {
-	'ArrowUp': 'forward',
-	'KeyW': 'forward',
-	'ArrowLeft': 'left',
-	'KeyA': 'left',
-	'ArrowDown': 'backward',
-	'KeyS': 'backward',
-	'ArrowRight': 'right',
-	'KeyD': 'right',
+const keyCommands: IStringObject = {
+	ArrowUp: 'forward',
+	KeyW: 'forward',
+	ArrowLeft: 'left',
+	KeyA: 'left',
+	ArrowDown: 'backward',
+	KeyS: 'backward',
+	ArrowRight: 'right',
+	KeyD: 'right',
 }
 
 type Boundary = [number | null, number | null] | null;
@@ -72,7 +69,6 @@ class CameraControls extends THREE.EventDispatcher {
 	halt: () => void;
 	update: (delta: number) => void;
 	dispose: () => void;
-	getDirection: (v: THREE.Vector3) => THREE.Vector3;
 	moveForward: (distance: number) => void;
 	moveRight: (distance: number) => void;
 	moveUp: (distance: number) => void;
@@ -147,10 +143,10 @@ class CameraControls extends THREE.EventDispatcher {
 				this.isPinching = true;
 
 				if (curDiff[axis] > prevDiff[axis]) { // the distance between the two pointers has increased
-					move.forward = true;
+					currentlyMoving.forward = true;
 				}
 				if (curDiff[axis] < prevDiff[axis]) { // the distance between the two pointers has decreased
-					move.backward = true;
+					currentlyMoving.backward = true;
 				}
 			}
 
@@ -255,15 +251,15 @@ class CameraControls extends THREE.EventDispatcher {
 		}
 
 		const onKeyDown = (e: KeyboardEvent): void => {
-			const direction = keys[e.code];
-			if (!direction || move[direction] == null) return;
-			move[direction] = true;
+			const direction = keyCommands[e.code];
+			if (!direction || currentlyMoving[direction] == null) return;
+			currentlyMoving[direction] = true;
 		}
 
 		const onKeyUp = (e: KeyboardEvent): void => {
-			const direction = keys[e.code];
-			if (!direction || move[direction] == null) return;
-			move[direction] = false;
+			const direction = keyCommands[e.code];
+			if (!direction || currentlyMoving[direction] == null) return;
+			currentlyMoving[direction] = false;
 		}
 
 		const onMouseDown = (): void => {
@@ -382,20 +378,6 @@ class CameraControls extends THREE.EventDispatcher {
 			}
 		}
 
-		const onPointerlockChange = (): void => {
-			if (scope.domElement.ownerDocument.pointerLockElement !== scope.domElement) {
-				scope.dispatchEvent(_unlockEvent);
-				//scope.isLocked = false;
-				return;
-			}
-			scope.dispatchEvent(_lockEvent);
-			//scope.isLocked = true;
-		}
-
-		const onPointerlockError = (): void => {
-			console.error('CameraControls: Unable to use Pointer Lock API');
-		}
-
 		this.connect = (): void => {
 			if (this.isEnabled) return;
 
@@ -409,9 +391,6 @@ class CameraControls extends THREE.EventDispatcher {
 			scope.domElement.ownerDocument.addEventListener('touchmove', onTouchMove);
 			scope.domElement.ownerDocument.addEventListener('touchstart', onTouchStart, { passive: false });
 			scope.domElement.ownerDocument.addEventListener('touchend', onTouchEnd);
-
-			scope.domElement.ownerDocument.addEventListener('pointerlockchange', onPointerlockChange);
-			scope.domElement.ownerDocument.addEventListener('pointerlockerror', onPointerlockError);
 
 			this.isEnabled = true;
 		}
@@ -430,34 +409,31 @@ class CameraControls extends THREE.EventDispatcher {
 			scope.domElement.ownerDocument.removeEventListener('touchstart', onTouchStart);
 			scope.domElement.ownerDocument.removeEventListener('touchend', onTouchEnd);
 
-			scope.domElement.ownerDocument.removeEventListener('pointerlockchange', onPointerlockChange);
-			scope.domElement.ownerDocument.removeEventListener('pointerlockerror', onPointerlockError);
-
 			this.isEnabled = false;
 		}
 
 		this.halt = (): void => {
-			for (const direction in move) {
-				move[direction] = false;
+			for (const direction in currentlyMoving) {
+				currentlyMoving[direction] = false;
 			}
 		}
 
 		this.update = (delta: number) => {
 
-			if (Object.values(move).every(dir => dir === false)) return;
+			if (Object.values(currentlyMoving).every(dir => dir === false)) return;
 
 			velocity.x -= velocity.x * 10.0 * delta;
 			velocity.z -= velocity.z * 10.0 * delta;
 			velocity.y -= velocity.y * 100.0 * delta; // 100.0 = mass
 
-			direction.x = Number(move.right) - Number(move.left);
-			direction.z = Number(move.forward) - Number(move.backward);
-			direction.y = Number(move.up) - Number(move.down);
+			direction.x = Number(currentlyMoving.right) - Number(currentlyMoving.left);
+			direction.z = Number(currentlyMoving.forward) - Number(currentlyMoving.backward);
+			direction.y = Number(currentlyMoving.up) - Number(currentlyMoving.down);
 			direction.normalize(); // this ensures consistent movements in all directions
 
-			if (move.forward || move.backward) velocity.z -= direction.z * 400.0 * delta;
-			if (move.up || move.down) velocity.y -= direction.y * 400.0 * delta;
-			if (move.right || move.left) velocity.x -= direction.x * 400.0 * delta;
+			if (currentlyMoving.forward || currentlyMoving.backward) velocity.z -= direction.z * 400.0 * delta;
+			if (currentlyMoving.up || currentlyMoving.down) velocity.y -= direction.y * 400.0 * delta;
+			if (currentlyMoving.right || currentlyMoving.left) velocity.x -= direction.x * 400.0 * delta;
 
 			scope.moveRight(-velocity.x * delta);
 			scope.moveUp(-velocity.y * delta);
@@ -465,11 +441,6 @@ class CameraControls extends THREE.EventDispatcher {
 		}
 
 		this.dispose = this.disconnect;
-
-		this.getDirection = (() => {
-			const direction = new THREE.Vector3(0, 0, -1);
-			return (v: THREE.Vector3): THREE.Vector3 => v.copy(direction).applyQuaternion(camera.quaternion);
-		})();
 
 		this.moveForward = (distance: number): void => {
 			// move forward parallel to the xz-plane

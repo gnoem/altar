@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { ISimpleObject, IStringObject } from "@types";
 import { getSlope, roundToDecimalPlaces } from "@utils";
+import { tappedLog } from "@lib";
 
 type Axis = 'x' | 'y';
 
@@ -47,42 +48,6 @@ const keys: IStringObject = {
 	'KeyS': 'backward',
 	'ArrowRight': 'right',
 	'KeyD': 'right',
-}
-
-const touchedLog = (e: TouchEvent): boolean => {
-	return !!(e.target as HTMLElement)?.closest?.('#log');
-}
-
-const log = (logResult: string, overwrite: boolean = false, stick: boolean = false): void => {
-	const createDiv = (): HTMLDivElement => {
-		const containerDiv = document.createElement('div');
-		containerDiv.id = 'log';
-		containerDiv.onmousedown = () => {
-			containerDiv.classList.toggle('expanded');
-		}
-		const stickySpan = document.createElement('span');
-		const innerDiv = document.createElement('div');
-		const button = document.createElement('button');
-		button.innerHTML = '×';
-		button.onclick = () => {
-			document.body.removeChild(containerDiv);
-		}
-		stickySpan.style.background = '#333'
-		containerDiv.appendChild(stickySpan);
-		containerDiv.appendChild(innerDiv);
-		containerDiv.appendChild(button);
-		document.body.appendChild(containerDiv);
-		return innerDiv;
-	}
-	const span = document.querySelector('#log > span') ?? createDiv();
-	const div = document.querySelector('#log > div') ?? createDiv();
-	if (stick) {
-		span.innerHTML = `> ${logResult}`;
-	} else if (overwrite) {
-		div.innerHTML = `> ${logResult}`;
-	} else {
-		div.innerHTML += `<br>> ${logResult}`;
-	}
 }
 
 type Boundary = [number | null, number | null] | null;
@@ -330,7 +295,7 @@ class CameraControls extends THREE.EventDispatcher {
 
 		// TOUCHSCREEN - drag and pinch
 		const onTouchMove = (e: TouchEvent): void => {
-			if (touchedLog(e)) return;
+			if (tappedLog(e)) return;
 
 			// two-finger gestures, either pinch or drag
 			if (e.touches.length > 1) {
@@ -381,7 +346,7 @@ class CameraControls extends THREE.EventDispatcher {
 		}
 
 		const onTouchStart = (e: TouchEvent): void => {
-			if (touchedLog(e)) return;
+			if (tappedLog(e)) return;
 			cacheTouchEvent(e);
 			if ((e.touches.length > 1) || (eventCache.length > 0)) {
         e.preventDefault();
@@ -389,7 +354,7 @@ class CameraControls extends THREE.EventDispatcher {
 		}
 
 		const onTouchEnd = (e: TouchEvent): void => {
-			if (touchedLog(e)) return;
+			if (tappedLog(e)) return;
 
 			this.halt();
 			this.isPinching = false;

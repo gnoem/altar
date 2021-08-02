@@ -420,8 +420,6 @@ class CameraControls extends THREE.EventDispatcher {
 
 		this.update = (delta: number) => {
 
-			if (Object.values(currentlyMoving).every(dir => dir === false)) return;
-
 			velocity.x -= velocity.x * 10.0 * delta;
 			velocity.z -= velocity.z * 10.0 * delta;
 			velocity.y -= velocity.y * 100.0 * delta; // 100.0 = mass
@@ -430,6 +428,8 @@ class CameraControls extends THREE.EventDispatcher {
 			direction.z = Number(currentlyMoving.forward) - Number(currentlyMoving.backward);
 			direction.y = Number(currentlyMoving.up) - Number(currentlyMoving.down);
 			direction.normalize(); // this ensures consistent movements in all directions
+
+			if (Object.values(currentlyMoving).every(dir => dir === false)) return;
 
 			if (currentlyMoving.forward || currentlyMoving.backward) velocity.z -= direction.z * 400.0 * delta;
 			if (currentlyMoving.up || currentlyMoving.down) velocity.y -= direction.y * 400.0 * delta;

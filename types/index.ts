@@ -41,19 +41,24 @@ export interface IAnimationData {
 export interface IInteractionDef {
   steps: string[];
   times: number[];
+  blueprint?: boolean; // if true, follow interaction blueprint
+  passive?: boolean; // if false or undefined, blocks further attempts to interact until this one is complete
 }
+
+export type IInteractionOptions = Partial<IInteractionDef>;
 
 export interface IInteractionMap {
   [start: string]: IInteractionDef
 }
 
-export type IInteractionEvents = (
-  scene: THREE.Scene,
-  next: () => void,
-  castState: (state: IInteractionDef) => void
-) => {
-  [state: string]: () => void
+export interface IInteractionEvents {
+  [state: string]: () => void;
 }
+
+export type IInteractionEventMap = (
+  scene: THREE.Scene,
+  next: (customState?: IInteractionOptions) => void
+) => IInteractionEvents;
 
 export type IKeyframe = {
   //[K in 'position' | 'rotation' | 'scale']: number[]
@@ -67,7 +72,7 @@ export interface IKeyframeMap {
 export interface IInteraction {
   blueprint: IInteractionMap;
   animations: IAnimationData;
-  events?: IInteractionEvents | null;
+  events?: IInteractionEventMap | null;
 }
 
 // materials & textures

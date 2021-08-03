@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { IInteraction, IInteractionDef, IKeyframeMap } from "@types";
+import { IInteraction, IInteractionDef, IKeyframeMap, IInteractionEvents, IInteractionOptions } from "@types";
 import { getAnimationData } from "@utils";
 import { createKeyframeFromDelta } from "@utils/interactions";
 
@@ -12,11 +12,12 @@ const blueprint: {
   },
   'abovewater': {
     steps: ['welcome'],
-    times: [3]
+    times: [3],
+    passive: true
   },
   'welcome': {
     steps: ['welcomed'],
-    times: [3]
+    times: [3],
   },
   'welcomed': {
     steps: ['help'],
@@ -30,10 +31,8 @@ const blueprint: {
 
 const events = (
   scene: THREE.Scene,
-  next: () => void
-): {
-  [state: string]: () => void
-} => {
+  next: (customState?: IInteractionOptions) => void
+): IInteractionEvents => {
   const welcome = (): void => {
     const name = prompt(`
       hi, welcome to the altar at GNAGUA W16V\n
@@ -51,7 +50,7 @@ const events = (
     }
     alert(`
       im the oracle here, i can help you if you have questions or are not sure how this works.\n
-      after you close out of this box, you can use W/A/S/D or your arrow keys to move, and scroll with your mouse wheel or trackpad to move up or down. click and drag your cursor to look around the scene. hope you enjoy!
+      after you click out of this box, click and drag the screen to look around. you can use the arrow keys or W/A/S/D to move around, or pinch/drag with 2 fingers if you're using a touch screen. hope you enjoy!
     `);
     next();
   }

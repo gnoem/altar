@@ -49,6 +49,10 @@ const keyCommands: IStringObject = {
 
 type Boundary = [number | null, number | null] | null;
 
+interface IBoundariesObj {
+	[axis: string]: Boundary
+}
+
 class CameraControls extends THREE.EventDispatcher {
 
 	domElement: HTMLElement;
@@ -69,6 +73,7 @@ class CameraControls extends THREE.EventDispatcher {
 	halt: () => void;
 	update: (delta: number) => void;
 	dispose: () => void;
+	setBoundaries: (boundaries: IBoundariesObj) => void;
 	moveForward: (distance: number) => void;
 	moveRight: (distance: number) => void;
 	moveUp: (distance: number) => void;
@@ -166,9 +171,7 @@ class CameraControls extends THREE.EventDispatcher {
 				(this.boundaryZ?.every(isNull))
 			) return true;
 
-			const boundariesObject: {
-				[axis: string]: Boundary
-			} = {
+			const boundariesObject: IBoundariesObj = {
 				x: this.boundaryX,
 				y: this.boundaryY,
 				z: this.boundaryZ
@@ -177,9 +180,9 @@ class CameraControls extends THREE.EventDispatcher {
 			const isExceeded = (boundaryDef: [string, Boundary]): boolean => {
 				const [axis, boundary] = boundaryDef;
 				if (boundary == null) return false;
+				const a = axis as 'x' | 'y' | 'z';
 				const [min, max] = boundary;
-				// @ts-ignore
-				const targetValue = roundToDecimalPlaces(newPosition[axis], 2);
+				const targetValue = roundToDecimalPlaces(newPosition[a], 2);
 				const exceedsMin = (min != null) && (targetValue < min);
 				const exceedsMax = (max != null) && (targetValue > max);
 				return (exceedsMin || exceedsMax);
@@ -441,6 +444,38 @@ class CameraControls extends THREE.EventDispatcher {
 		}
 
 		this.dispose = this.disconnect;
+
+		this.setBoundaries = (rawBoundaries: IBoundariesObj): void => {
+			// sanitize boundaries to ensure boundary[0] <= boundary[1]
+			const sanitizeBoundaries = (rawBoundaries: IBoundariesObj) => {
+				const sanitizedBoundaries = Object.entries(rawBoundaries).map(([axis, boundary]) => {
+					const unchanged = [axis, boundary];
+					if (!boundary || !(boundary[0] && boundary[1])) return unchanged;
+					if (boundary[0] > boundary[1]) {
+						const newBoundary = [boundary[1], boundary[0]];
+						return [axis, newBoundary];
+					}
+					return unchanged;
+				});
+				return Object.fromEntries(sanitizedBoundaries);
+			}
+			// get position of camera and ensure it is within boundaries
+			const checkCameraPosition = (boundaries: IBoundariesObj) => {
+				Object.entries(boundaries).forEach(([axis, boundary]) => {
+					const a = axis as 'x' | 'y' | 'z';
+					if (boundary?.[0] && camera.position[a] < boundary[0]) {
+						camera.position[a] = boundary[0];
+					} else if (boundary?.[1] && camera.position[a] > boundary[1]) {
+						camera.position[a] = boundary[1];
+					}
+				});
+			}
+			const { x, y, z } = sanitizeBoundaries(rawBoundaries);
+			checkCameraPosition({ x, y, z });
+			this.boundaryX = x;
+			this.boundaryY = y;
+			this.boundaryZ = z;
+		}
 
 		this.moveForward = (distance: number): void => {
 			// move forward parallel to the xz-plane

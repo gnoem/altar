@@ -13,6 +13,7 @@ const Oracle: React.FC<IObjectComponentProps> = ({ name, sceneComponents }) => {
     const initialKeyframe = animations.animationKeyframes()[getInitialState(blueprint)];
     transformObject.position(object, initialKeyframe.position);
     transformObject.rotation(object, initialKeyframe.rotation);
+    transformObject.scale(object, initialKeyframe.scale);
     object.name = name;
   }
 

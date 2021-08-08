@@ -71,10 +71,15 @@ const useInteraction = (
     setNextState(null);
   }, [nextState]);
 
-  useInteractionEvents(events, {
+  const manageState = {
     currentState,
     next
-  }, sceneComponents);
+  }
+
+  useInteractionEvents(events, manageState, {
+    ...sceneComponents,
+    object
+  });
 
   return {
     interact: next
@@ -117,14 +122,14 @@ const useAnimation = (
 const useInteractionEvents = (
   eventsMap: IInteractionEventMap | null = null,
   { currentState, next }: IInteract,
-  { scene, camera, renderer }: IThreeScene
+  { object, scene, camera, renderer }: IThreeScene
 ): void => {
 
   useEffect(() => {
-    if (!(eventsMap && scene && camera && renderer)) return;
+    if (!(eventsMap && object && scene && camera && renderer)) return;
     if (typeof currentState === 'string') return;
     const stateName = last(currentState!.steps);
-    eventsMap(scene, next!)[stateName]?.();
+    eventsMap(object!, scene, next!)[stateName]?.(currentState!);
   }, [currentState]);
 
 }

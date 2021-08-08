@@ -1,7 +1,7 @@
 import * as THREE from "three";
-import { IInteraction, IInteractionDef, IKeyframeMap, IInteractionEvents, IInteractionOptions } from "@types";
+import { IInteraction, IInteractionDef, IKeyframeMap, IInteractionEvents, IInteractionOptions, SceneObject } from "@types";
 import { getAnimationData } from "@utils";
-import { createKeyframeFromDelta } from "@utils/interactions";
+import { createKeyframeFromDelta, getAnimationDuration } from "@utils/interactions";
 
 const blueprint: {
   [start: string]: IInteractionDef
@@ -30,9 +30,16 @@ const blueprint: {
 }
 
 const events = (
+  object: SceneObject,
   scene: THREE.Scene,
   next: (customState?: IInteractionOptions) => void
 ): IInteractionEvents => {
+  const abovewater = (prevState: IInteractionDef): void => {
+    // after animation duration, unlock useWatchCursor for oracle!
+    setTimeout(() => {
+      scene.userData.enableWatchCursor?.(object.name);
+    }, getAnimationDuration(prevState));
+  }
   const welcome = (): void => {
     const name = prompt(`
       hi, welcome to the altar at GNAGUA W16V\n
@@ -58,6 +65,7 @@ const events = (
     scene.userData.unlock('lookaround');
   }
   return {
+    abovewater,
     welcome,
     welcomed
   }
@@ -66,7 +74,7 @@ const events = (
 const animationKeyframes = (): IKeyframeMap => {
   const abovewater = {
     rotation: [0, 0, 0],
-    position: [0, 10, -30],
+    position: [0, 10, -20],
     scale: [3, 3, 3]
   }
   const underwater = createKeyframeFromDelta(abovewater, {

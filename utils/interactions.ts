@@ -1,6 +1,6 @@
 import * as THREE from "three";
-import { IAnimationData, IInteractionMap, IKeyframe, IKeyframeMap } from "@types";
-import { sumMatrices } from "@utils";
+import { IAnimationData, IInteractionDef, IInteractionMap, IKeyframe, IKeyframeMap } from "@types";
+import { last, sumMatrices } from "@utils";
 
 interface IFullKeyframe {
   rotation: THREE.Quaternion;
@@ -111,7 +111,10 @@ const getAnimationData = (animationKeyframes: () => IKeyframeMap): IAnimationDat
   }
 }
 
+const getAnimationDuration = ({ times }: IInteractionDef): number => last(times) * 1000;
+
 export {
   getInitialState,
-  getAnimationData
+  getAnimationData,
+  getAnimationDuration
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import * as THREE from "three";
-import { Loop, CameraControls, RoughnessMipmapper, objects, RGBELoader } from "@lib";
+import { Loop, CameraControls, RoughnessMipmapper, objects, RGBELoader, WatchCursorControls } from "@lib";
 import { IThreeScene } from "@types";
 import { transformObject, mutateStateArray } from "@utils";
 
@@ -37,7 +37,9 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
     renderer.shadowMap.enabled = true;
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.outputEncoding = THREE.sRGBEncoding;
+    camera.position.set(0, 10, 5);
     addCameraControls(scene, camera, renderer, loop);
+    addWatchCursor(scene, camera);
     setScene(scene);
     setCamera(camera);
     setRenderer(renderer);
@@ -73,6 +75,22 @@ const useScene = (sceneRef: HTMLElement | null): IThreeScene => {
   }
 }
 
+const addWatchCursor = (scene: THREE.Scene, camera: THREE.Camera): WatchCursorControls => {
+  const controls = new WatchCursorControls(camera);
+  scene.userData.enableWatchCursor = (objectName: string): void => {
+    const object = scene.children.find(child => {
+      return (
+        ['Mesh', 'Group'].includes(child.type) &&
+        (child.name === objectName)
+      );
+    });
+    if (!object) return;
+    controls.add(object as THREE.Group | THREE.Mesh);
+    controls.connect();
+  }
+  return controls;
+}
+
 const addCameraControls = (scene: THREE.Scene, camera: THREE.Camera, renderer: THREE.WebGLRenderer, loop: Loop): CameraControls => {
   const controls = new CameraControls(camera, renderer.domElement);
   controls.setBoundaries({
@@ -80,7 +98,7 @@ const addCameraControls = (scene: THREE.Scene, camera: THREE.Camera, renderer: T
     y: [10, 10],
     z: [-1000, 1000],
   });
-  //controls.connect();
+  controls.connect();
   scene.userData.enableCameraControls = (enableControls: boolean = true): void => {
     if (enableControls) controls.connect();
     else controls.dispose();

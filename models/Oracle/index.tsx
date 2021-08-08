@@ -1,5 +1,5 @@
 import { interactions } from "./interactions";
-import { useAddObject, useGLTF, useInteraction } from "@hooks";
+import { useAddObject, useGLTF, useInteraction, useWatchCursor } from "@hooks";
 import { IObjectComponentProps, SceneObject } from "@types";
 import { transformObject, getInitialState } from "@utils";
 

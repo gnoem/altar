@@ -12,6 +12,7 @@ export interface IStringObject {
 // THREE scenes, objects
 
 export interface IThreeScene {
+  object?: SceneObject | null;
   scene: THREE.Scene | null;
   camera: THREE.Camera | null;
   renderer: THREE.WebGLRenderer | null;
@@ -52,10 +53,11 @@ export interface IInteractionMap {
 }
 
 export interface IInteractionEvents {
-  [state: string]: () => void;
+  [state: string]: (prevState: IInteractionDef) => void;
 }
 
 export type IInteractionEventMap = (
+  object: SceneObject,
   scene: THREE.Scene,
   next: (customState?: IInteractionOptions) => void
 ) => IInteractionEvents;

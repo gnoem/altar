@@ -14,7 +14,7 @@ const Pedestal: React.FC<IObjectComponentProps> = ({ name, sceneComponents }): J
   const [meshes, setMeshes] = useState<IMeshesObject>({});
   const names = Object.keys(components);
 
-  const object = useGLTF('gltf/pedestal.glb', meshRegistration(names, setMeshes));
+  const object = useGLTF('gltf/pedestal2.glb', meshRegistration(names, setMeshes));
 
   const { blueprint, animations } = interactions;
   const { interact } = useInteraction(object, sceneComponents, interactions);

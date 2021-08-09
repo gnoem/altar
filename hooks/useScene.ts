@@ -98,7 +98,7 @@ const addCameraControls = (scene: THREE.Scene, camera: THREE.Camera, renderer: T
     y: [10, 10],
     z: [-1000, 1000],
   });
-  controls.connect();
+  //controls.connect();
   scene.userData.enableCameraControls = (enableControls: boolean = true): void => {
     if (enableControls) controls.connect();
     else controls.dispose();

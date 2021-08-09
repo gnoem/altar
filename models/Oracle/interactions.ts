@@ -61,8 +61,11 @@ const events = (
     `);
     next();
   }
-  const welcomed = (): void => {
+  const welcomed = (prevState: IInteractionDef): void => {
     scene.userData.unlock('lookaround');
+    setTimeout(() => {
+      scene.remove(object);
+    }, getAnimationDuration(prevState));
   }
   return {
     abovewater,

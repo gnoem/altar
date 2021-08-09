@@ -32,7 +32,6 @@ class WatchCursorControls extends THREE.EventDispatcher {
       raycaster.ray.intersectPlane(plane, pointOfIntersection);
       pointOfIntersection.z = camera.position.z;
       objects.forEach(object => {
-        console.log(`${object.name} is watching point of intersection ${pointOfIntersection.x}, ${pointOfIntersection.y}, ${pointOfIntersection.z}`)
         object.lookAt(pointOfIntersection);
       });
     }

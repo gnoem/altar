@@ -45,7 +45,7 @@ const useInteraction = (
 
     // update object.userData.preventInteractions to prevent further interaction until this one is complete
     const preventFurtherInteractions = (newState: IInteractionDef): void => {
-      const duration = last(newState.times);
+      const duration = last(newState?.times);
       if (!duration) return;
       object.userData.preventInteractions = true;
       setTimeout(() => {
@@ -60,10 +60,10 @@ const useInteraction = (
     } else if (nextState.blueprint) {
       // if a new state has been called via interact() or next() with no arguments, follow blueprint in interactions file
       setCurrentState(prevState => {
-        const newState: IInteractionDef = (typeof prevState === 'string')
+        const newState: IInteractionDef | undefined = (typeof prevState === 'string')
           ? blueprint[prevState] // only true if starting
           : blueprint[last(prevState.steps)];
-        if (!newState.passive) preventFurtherInteractions(newState);
+        if (!newState?.passive) preventFurtherInteractions(newState);
         return newState ?? prevState;
       });
     }

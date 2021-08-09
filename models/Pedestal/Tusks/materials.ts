@@ -4,7 +4,7 @@ import { defineMaterial } from "@utils";
 
 export const defineTusksMaterial = (): ILoadTextureInput => {
   const textures = {
-    'bumpMap': 'textures/bone2.png'
+    'bumpMap': 'textures/tusks.png'
   }
   
   const createMaterial = defineMaterial(THREE.MeshPhongMaterial, {

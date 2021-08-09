@@ -10,7 +10,7 @@ export const mutateStateArray = (update: ((array: any[]) => void) | null) => (pr
   return arrayToReturn;
 }
 
-export const last = (array: any[]): any => {
+export const last = (array: any[] = []): any => {
   return array[array.length - 1];
 }
 

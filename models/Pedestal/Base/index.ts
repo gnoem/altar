@@ -8,7 +8,7 @@ const Base: React.FC<IMeshComponentProps> = ({ mesh, name }): null => {
   useEffect(() => {
     if (!mesh) return;
     const textures = {
-      'bumpMap': 'textures/base.png'
+      'bumpMap': 'textures/base4.png'
     }
     const createMaterial = defineMaterial(THREE.MeshPhongMaterial, {
       bumpScale: 0.35,

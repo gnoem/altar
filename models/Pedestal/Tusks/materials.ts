@@ -9,8 +9,8 @@ export const defineTusksMaterial = (): ILoadTextureInput => {
   
   const createMaterial = defineMaterial(THREE.MeshPhongMaterial, {
     bumpScale: 0.1,
-    color: 0x5D5046,
-    specular: 0xBEB4AE,
+    color: 0x413429,
+    specular: 0xA9978C,
     shininess: 5
   });
 

@@ -57,7 +57,7 @@ const events = (
     }
     alert(`
       im the oracle here, i can help you if you have questions or are not sure how this works.\n
-      after you click out of this box, click and drag the screen to look around. you can use the arrow keys or W/A/S/D to move around, or pinch/drag with 2 fingers if you're using a touch screen. hope you enjoy!
+      after you click out of this box, use W/A/S/D to move, and use the arrow keys or click & drag the screen to look around. pinch/drag with 2 fingers if you're using a touch screen. hope you enjoy!
     `);
     next();
   }

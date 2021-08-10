@@ -36,6 +36,14 @@ const currentlyMoving: ISimpleObject = {
 	down: false
 }
 
+// for arrow key nav - mouse event nav (click or touch) should call this.moveRight, etc. directly
+const currentlyLooking: ISimpleObject = {
+	left: false,
+	right: false,
+	forward: false, //up
+	backward: false //down
+}
+
 const keyCommands: IStringObject = {
 	ArrowUp: 'forward',
 	KeyW: 'forward',
@@ -61,6 +69,7 @@ class CameraControls extends THREE.EventDispatcher {
 	isPinching: boolean;
 	isEnabled: boolean;
 	wheelToZoom: boolean;
+	arrowKeysLookAround: boolean;
 	movementSpeed: number;
 	boundaryX: Boundary;
 	boundaryY: Boundary;
@@ -90,6 +99,7 @@ class CameraControls extends THREE.EventDispatcher {
 		this.isPanning = false;
 
 		this.wheelToZoom = false;
+		this.arrowKeysLookAround = true;
 		this.movementSpeed = 1;
 		this.boundaryX = null;
 		this.boundaryY = null;
@@ -106,7 +116,7 @@ class CameraControls extends THREE.EventDispatcher {
 
 		const scope = this;
 
-		const rotateCamera = (movementX: number, movementY: number, speed: number): void => {
+		const rotateCamera = (movementX: number, movementY: number, speed: number = 0.005): void => {
 			_euler.setFromQuaternion(camera.quaternion);
 			_euler.y += movementX * speed;
 			_euler.x += movementY * speed;
@@ -256,13 +266,21 @@ class CameraControls extends THREE.EventDispatcher {
 		const onKeyDown = (e: KeyboardEvent): void => {
 			const direction = keyCommands[e.code];
 			if (!direction || currentlyMoving[direction] == null) return;
-			currentlyMoving[direction] = true;
+			if (this.arrowKeysLookAround && ['ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight'].includes(e.code)) {
+				currentlyLooking[direction] = true;
+			} else {
+				currentlyMoving[direction] = true;
+			}
 		}
 
 		const onKeyUp = (e: KeyboardEvent): void => {
 			const direction = keyCommands[e.code];
 			if (!direction || currentlyMoving[direction] == null) return;
-			currentlyMoving[direction] = false;
+			if (this.arrowKeysLookAround && ['ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight'].includes(e.code)) {
+				currentlyLooking[direction] = false;
+			} else {
+				currentlyMoving[direction] = false;
+			}
 		}
 
 		const onMouseDown = (): void => {
@@ -432,15 +450,32 @@ class CameraControls extends THREE.EventDispatcher {
 			direction.y = Number(currentlyMoving.up) - Number(currentlyMoving.down);
 			direction.normalize(); // this ensures consistent movements in all directions
 
-			if (Object.values(currentlyMoving).every(dir => dir === false)) return;
-
 			if (currentlyMoving.forward || currentlyMoving.backward) velocity.z -= direction.z * 400.0 * delta;
 			if (currentlyMoving.up || currentlyMoving.down) velocity.y -= direction.y * 400.0 * delta;
 			if (currentlyMoving.right || currentlyMoving.left) velocity.x -= direction.x * 400.0 * delta;
+			
+			if (Object.values(currentlyMoving).some(dir => dir === true)) {	
+				scope.moveRight(-velocity.x * delta);
+				scope.moveUp(-velocity.y * delta);
+				scope.moveForward(-velocity.z * delta);
+			}
 
-			scope.moveRight(-velocity.x * delta);
-			scope.moveUp(-velocity.y * delta);
-			scope.moveForward(-velocity.z * delta);
+			if (!this.arrowKeysLookAround) return;
+
+			// arrow keys to look around
+			if (Object.values(currentlyLooking).some(dir => dir === true)) {
+				const movementX = currentlyLooking.left
+					? 1
+					: currentlyLooking.right
+						? -1
+						: 0;
+				const movementY = currentlyLooking.backward
+					? -1
+					: currentlyLooking.forward
+						? 1
+						: 0;
+				rotateCamera(movementX, movementY, 0.01);
+			}
 		}
 
 		this.dispose = this.disconnect;
